@@ -260,23 +260,36 @@
     });
   }
 
+  function shareMessage() {
+    var url = window.location.origin + window.location.pathname;
+    // Внутрішні лапки — „…“, щоб не було «…«…»…»
+    var quoted = current.text.replace(/«/g, '„').replace(/»/g, '“');
+    return '✨ Моє передбачення на 2027 від Project Me Club:\n\n' +
+      '«' + quoted + '»\n\n' +
+      'Дізнайся своє: ' + url;
+  }
+
   function share() {
     if (!current) return;
-    var url = window.location.href.split('#')[0];
-    var text = 'Моє передбачення на 2027 від Project Me Club ✨\n«' + current.text + '»\n\nДізнайся своє:';
+    var message = shareMessage();
     var isHttp = /^https?:/.test(window.location.protocol);
+    // Системне меню «Поділитися» — лише на сенсорних пристроях (телефони, планшети).
+    // На компʼютері одразу копіюємо: вікно поширення Windows незручне і часто бере тільки посилання.
+    var isTouch = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 
-    if (navigator.share && isHttp) {
-      navigator.share({ title: 'Передбачення на 2027', text: text, url: url }).catch(function (err) {
-        if (err && err.name !== 'AbortError') fallbackCopy();
+    if (navigator.share && isHttp && isTouch) {
+      // Посилання навмисно всередині text, без окремого поля url:
+      // інакше «Копіювати» в меню iOS/Android копіює лише посилання без передбачення.
+      navigator.share({ text: message }).catch(function (err) {
+        if (err && err.name !== 'AbortError') copyMessage();
       });
       return;
     }
-    fallbackCopy();
+    copyMessage();
 
-    function fallbackCopy() {
-      copyText(text + ' ' + url)
-        .then(function () { toast('Скопійовано, можна ділитися ✨'); })
+    function copyMessage() {
+      copyText(message)
+        .then(function () { toast('Передбачення скопійовано, можна ділитися ✨'); })
         .catch(function () { toast('Не вдалося скопіювати 😔'); });
     }
   }
