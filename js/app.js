@@ -18,7 +18,8 @@
 
   var views = {
     intro: $('intro'), loading: $('loading'), result: $('result'),
-    games: $('games'), memory: $('memory'), catcher: $('catcher')
+    games: $('games'), memory: $('memory'), catcher: $('catcher'), scratch: $('scratch'),
+    wall: $('wall')
   };
   var currentView = 'intro';
   var originView = 'intro'; // звідки відкрили ігри: головний екран чи картка
@@ -307,7 +308,11 @@
 
   function share() {
     if (!current) return;
-    var message = shareMessage();
+    shareText(shareMessage(), 'Передбачення скопійовано, можна ділитися ✨');
+  }
+
+  // Спільне «Поділитися» для передбачень та ігор
+  function shareText(message, copiedMsg) {
     var isHttp = /^https?:/.test(window.location.protocol);
     // Системне меню «Поділитися» — лише на сенсорних пристроях (телефони, планшети).
     // На компʼютері одразу копіюємо: вікно поширення Windows незручне і часто бере тільки посилання.
@@ -325,10 +330,12 @@
 
     function copyMessage() {
       copyText(message)
-        .then(function () { toast('Передбачення скопійовано, можна ділитися ✨'); })
+        .then(function () { toast(copiedMsg || 'Скопійовано, можна ділитися ✨'); })
         .catch(function () { toast('Не вдалося скопіювати 😔'); });
     }
   }
+
+  window.PMC = { shareText: shareText, toast: toast };
 
   /* ---------- Старт ---------- */
 
@@ -349,14 +356,31 @@
   function stopGames() {
     if (window.MemoryGame) window.MemoryGame.stop();
     if (window.StarCatcher) window.StarCatcher.stop();
+    if (window.ScratchCard) window.ScratchCard.stop();
+    if (window.WishWall) window.WishWall.stop();
+  }
+
+  function openWall() {
+    if (busy || !window.WishWall) return;
+    if (currentView === 'intro' || currentView === 'result') originView = currentView;
+    stopGames();
+    showView('wall');
+    window.WishWall.show();
+    focusEl($('wallTitle'));
+  }
+
+  function setText(id, text) {
+    var el = $(id);
+    if (el) el.textContent = text;
   }
 
   function openGames() {
     if (busy) return;
     if (currentView === 'intro' || currentView === 'result') originView = currentView;
     stopGames();
-    $('tileBestMemory').textContent = window.MemoryGame ? window.MemoryGame.bestText() : '';
-    $('tileBestCatcher').textContent = window.StarCatcher ? window.StarCatcher.bestText() : '';
+    setText('tileBestMemory', window.MemoryGame ? window.MemoryGame.bestText() : '');
+    setText('tileBestCatcher', window.StarCatcher ? window.StarCatcher.bestText() : '');
+    setText('tileBestScratch', window.ScratchCard ? window.ScratchCard.bestText() : '');
     showView('games');
     focusEl($('gamesTitle'));
   }
@@ -370,6 +394,10 @@
       showView('catcher');
       window.StarCatcher.show();
       focusEl($('catcherTitle'));
+    } else if (name === 'scratch' && window.ScratchCard) {
+      showView('scratch');
+      window.ScratchCard.show();
+      focusEl($('scratchTitle'));
     }
   }
 
@@ -386,14 +414,16 @@
   }
 
   bindAll('.js-open-games', openGames);
+  bindAll('.js-open-wall', openWall);
   bindAll('.js-game-back', openGames);
   bindAll('.js-to-origin', backToOrigin);
   bindAll('.game-tile', function (e) { openGame(e.currentTarget.dataset.game); });
 
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
-    if (currentView === 'memory' || currentView === 'catcher') openGames();
-    else if (currentView === 'games') backToOrigin();
+    if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return; // не закривати посеред набору тексту
+    if (currentView === 'memory' || currentView === 'catcher' || currentView === 'scratch') openGames();
+    else if (currentView === 'games' || currentView === 'wall') backToOrigin();
   });
 
   /* ---------- Зворотний відлік до Нового року ---------- */

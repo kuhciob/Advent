@@ -27,7 +27,7 @@
 
   <link rel="preload" href="data/predictions.json" as="fetch" type="application/json" crossorigin>
   <!-- ?v=… — версія файлів: змінюй при кожному оновленні, щоб браузери не брали старі CSS/JS з кешу -->
-  <link rel="stylesheet" href="css/style.css?v=2026111603">
+  <link rel="stylesheet" href="css/style.css?v=2026111606">
 </head>
 <body>
   <!-- Фон: нічне небо, сяйво, сніг -->
@@ -115,7 +115,11 @@
         <span>Відкрити моє передбачення ✨</span>
       </button>
 
-      <button class="link-btn js-open-games" type="button">або зіграй у новорічні ігри 🎮</button>
+      <div class="extra-links">
+        <button class="link-btn js-open-games" type="button">Новорічні ігри 🎮</button>
+        <span class="extra-dot" aria-hidden="true">·</span>
+        <button class="link-btn js-open-wall" type="button">Стіна побажань 💌</button>
+      </div>
     </section>
 
     <!-- 2. Магічне перемішування -->
@@ -150,7 +154,44 @@
         <button class="btn btn-primary" id="againBtn" type="button"><span>Спробувати ще раз ✨</span></button>
         <button class="btn btn-ghost" id="shareBtn" type="button"><span>Поділитися</span></button>
       </div>
-      <button class="link-btn js-open-games" type="button">Новорічні ігри 🎮</button>
+      <div class="extra-links">
+        <button class="link-btn js-open-games" type="button">Новорічні ігри 🎮</button>
+        <span class="extra-dot" aria-hidden="true">·</span>
+        <button class="link-btn js-open-wall" type="button">Стіна побажань 💌</button>
+      </div>
+    </section>
+
+    <!-- Стіна побажань -->
+    <section class="view view-game view-wall" id="wall" hidden>
+      <div class="game-head">
+        <button class="back-btn js-to-origin" type="button" aria-label="Назад до передбачень">←<span> Назад</span></button>
+        <h2 class="game-title" id="wallTitle" tabindex="-1">Стіна побажань</h2>
+        <span class="game-head-spacer" aria-hidden="true"></span>
+      </div>
+      <p class="game-sub">Залиш побажання клубу на 2027 — воно з’явиться на дошці серед інших ✨</p>
+
+      <form class="wall-form" id="wallForm" novalidate>
+        <label class="visually-hidden" for="wallText">Твоє побажання</label>
+        <textarea class="wall-input wall-textarea" id="wallText" maxlength="200" rows="3" placeholder="Бажаю всім у 2027…" required></textarea>
+        <div class="wall-form-row">
+          <label class="visually-hidden" for="wallName">Ім’я (необов’язково)</label>
+          <input class="wall-input" id="wallName" type="text" maxlength="40" placeholder="Ім’я (необов’язково)" autocomplete="nickname">
+          <span class="wall-count" id="wallCount" aria-hidden="true">0/200</span>
+        </div>
+        <!-- пастка для ботів: людина це поле не бачить -->
+        <input class="wall-hp" id="wallHp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn btn-primary" id="wallSubmit" type="submit"><span>Приклеїти на стіну 📌</span></button>
+        <p class="wall-status" id="wallStatus" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="wall-demo" id="wallDemo" hidden>Демо-режим: стіну ще не підключено до Google Таблиці, тож твої побажання бачиш лише ти.</p>
+
+      <div class="wall-board-head">
+        <span class="wall-total" id="wallTotal"></span>
+        <button class="link-btn wall-refresh" id="wallRefresh" type="button">Оновити ↻</button>
+      </div>
+      <div class="wall-board" id="wallBoard" aria-label="Побажання учасників"></div>
+      <p class="wall-empty" id="wallEmpty" hidden>Тут поки порожньо. Твоє побажання може стати першим на стіні ✨</p>
     </section>
 
     <!-- 4. Вибір гри -->
@@ -183,6 +224,47 @@
             <span class="tile-best" id="tileBestCatcher"></span>
           </span>
         </button>
+        <button class="game-tile" type="button" data-game="scratch">
+          <span class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><rect x="5" y="11" width="38" height="26" rx="4" fill="#f5eee1" stroke="#d6ba8b" stroke-width="1.5"/><rect x="9" y="15" width="30" height="18" rx="2.5" fill="#c9d9ee"/><path d="M12 29c5-7 9 1 14-5s8 0 11-4" stroke="#fffaf0" stroke-width="6" stroke-linecap="round" fill="none"/><path transform="translate(24 24) scale(0.5)" d="M0-10L2.35-3.24 9.51-3.09 3.8 1.24 5.88 8.09 0 4-5.88 8.09-3.8 1.24-9.51-3.09-2.35-3.24Z" fill="#d6ba8b"/></svg>
+          </span>
+          <span class="tile-body">
+            <span class="tile-title">Скретч-картка</span>
+            <span class="tile-desc">Зітри іній і дізнайся свій новорічний бонус</span>
+            <span class="tile-best" id="tileBestScratch"></span>
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Міні-гра «Скретч-картка» -->
+    <section class="view view-game view-scratch" id="scratch" hidden>
+      <div class="game-head">
+        <button class="back-btn js-game-back" type="button" aria-label="Назад до списку ігор">←<span> Ігри</span></button>
+        <h2 class="game-title" id="scratchTitle" tabindex="-1">Скретч-картка</h2>
+        <span class="game-head-spacer" aria-hidden="true"></span>
+      </div>
+      <p class="game-sub">Під інеєм ховається твій новорічний бонус ✨</p>
+
+      <article class="card scratch-ticket">
+        <p class="card-kicker">Project Me Club · 2027</p>
+        <div class="scratch-area" id="scratchArea">
+          <div class="scratch-prize" id="scratchPrize" aria-hidden="true" aria-live="polite">
+            <p class="prize-kicker" id="prizeKicker"></p>
+            <p class="prize-icon" id="prizeIcon"></p>
+            <h3 class="card-title prize-title" id="prizeTitle"></h3>
+            <p class="card-text prize-text" id="prizeText"></p>
+          </div>
+          <canvas class="scratch-canvas" id="scratchCanvas" aria-hidden="true"></canvas>
+        </div>
+      </article>
+
+      <button class="link-btn" id="scratchRevealBtn" type="button">Відкрити без стирання</button>
+
+      <div class="actions scratch-actions" id="scratchActions" hidden>
+        <button class="btn btn-primary" id="scratchAgain" type="button"><span>Ще одна картка 🎟️</span></button>
+        <button class="btn btn-ghost" id="scratchShare" type="button"><span>Поділитися</span></button>
+        <button class="link-btn js-to-origin" type="button">До передбачень ✨</button>
       </div>
     </section>
 
@@ -293,9 +375,11 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/effects.js?v=2026111603" defer></script>
-  <script src="js/app.js?v=2026111603" defer></script>
-  <script src="js/game.js?v=2026111603" defer></script>
-  <script src="js/catcher.js?v=2026111603" defer></script>
+  <script src="js/effects.js?v=2026111606" defer></script>
+  <script src="js/app.js?v=2026111606" defer></script>
+  <script src="js/game.js?v=2026111606" defer></script>
+  <script src="js/catcher.js?v=2026111606" defer></script>
+  <script src="js/scratch.js?v=2026111606" defer></script>
+  <script src="js/wall.js?v=2026111606" defer></script>
 </body>
 </html>
