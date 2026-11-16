@@ -125,7 +125,7 @@ body {
   padding:
     max(28px, env(safe-area-inset-top))
     16px
-    calc(var(--campus-h) * 0.8 + 24px);
+    calc(max(var(--campus-h) * 0.6, 92px) + 24px); /* місце для футера з відліком */
 }
 
 .view {
@@ -196,7 +196,7 @@ body {
 }
 
 .status {
-  margin: 10px 0 18px;
+  margin: 10px 0 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -244,67 +244,6 @@ body {
 @keyframes shimmer {
   from { background-position: 200% 0; }
   to   { background-position: 0 0; }
-}
-
-/* Зворотний відлік до Нового року */
-.countdown {
-  margin: 0 0 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.countdown-label {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-.countdown-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-}
-.countdown-row[hidden] { display: none; }
-.cd {
-  min-width: 58px;
-  padding: 8px 6px 6px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(214, 186, 139, 0.3);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.cd-num {
-  font: 700 1.45rem/1.1 var(--font-slab);
-  color: var(--white);
-  font-variant-numeric: tabular-nums;
-}
-.cd-unit {
-  margin-top: 2px;
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--gold-bright);
-}
-.cd-sep {
-  padding-top: 8px;
-  font: 700 1.3rem/1.1 var(--font-slab);
-  color: rgba(241, 220, 174, 0.55);
-}
-.countdown.is-done .countdown-label {
-  font-size: 1.05rem;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--gold-bright);
-}
-@media (max-width: 359px) {
-  .cd { min-width: 50px; }
-  .cd-num { font-size: 1.25rem; }
-  .countdown-row { gap: 4px; }
 }
 
 .status.is-ready .status-text { animation: soft-pulse 2.4s ease-in-out infinite; }
@@ -1012,18 +951,119 @@ body {
   bottom: max(10px, env(safe-area-inset-bottom));
   z-index: 2;
   padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   text-align: center;
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.62);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
   pointer-events: none;
+}
+
+.foot-brand {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+/* Зворотний відлік у футері: яскрава, але компактна «пігулка» з гірляндою */
+.ny {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px 7px 14px;
+  border-radius: 999px;
+  background: linear-gradient(100deg, rgba(122, 35, 74, 0.92) 0%, rgba(74, 23, 51, 0.92) 35%, rgba(9, 52, 111, 0.92) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(241, 220, 174, 0.55),
+    0 0 18px rgba(241, 220, 174, 0.18),
+    0 8px 22px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+.ny[hidden] { display: none; }
+
+.ny-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ny-time {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  font-family: var(--font-slab);
+  font-variant-numeric: tabular-nums;
+}
+.ny-time[hidden] { display: none; }
+.ny-time b {
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--gold-bright);
+  text-shadow: 0 0 10px rgba(241, 220, 174, 0.55);
+}
+.ny-time small {
+  margin: 0 7px 0 4px;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+.ny-colon {
+  font-style: normal;
+  font-weight: 700;
+  color: rgba(241, 220, 174, 0.7);
+  animation: colon-blink 1s steps(1) infinite;
+}
+@keyframes colon-blink {
+  50% { opacity: 0.25; }
+}
+
+/* Гірлянда над пігулкою */
+.ny-lights {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: -4px;
+  display: flex;
+  justify-content: space-between;
+}
+.ny-lights i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold-bright);
+  box-shadow: 0 0 8px 2px rgba(241, 220, 174, 0.7);
+  animation: light-twinkle 2.4s ease-in-out infinite;
+}
+.ny-lights i:nth-child(3n + 2) { background: #ff9ec0; box-shadow: 0 0 8px 2px rgba(255, 158, 192, 0.65); animation-delay: -0.8s; }
+.ny-lights i:nth-child(3n)     { background: #ffffff; box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.6); animation-delay: -1.6s; }
+@keyframes light-twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.7); }
+}
+
+.ny.is-done .ny-label {
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--gold-bright);
+}
+
+@media (max-width: 359px) {
+  .ny { gap: 7px; padding: 6px 12px; }
+  .ny-label { letter-spacing: 0.08em; }
+  .ny-time small { margin: 0 5px 0 3px; }
 }
 
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 34px);
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 92px);
   z-index: 10;
   max-width: calc(100% - 32px);
   padding: 12px 18px;

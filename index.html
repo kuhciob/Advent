@@ -26,7 +26,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Roboto+Slab:wght@600;700;800&display=swap" rel="stylesheet">
 
   <link rel="preload" href="data/predictions.json" as="fetch" type="application/json" crossorigin>
-  <link rel="stylesheet" href="css/style.css">
+  <!-- ?v=… — версія файлів: змінюй при кожному оновленні, щоб браузери не брали старі CSS/JS з кешу -->
+  <link rel="stylesheet" href="css/style.css?v=2026111603">
 </head>
 <body>
   <!-- Фон: нічне небо, сяйво, сніг -->
@@ -106,20 +107,6 @@
           <span class="status-pct" id="statusPct" aria-hidden="true">0%</span>
         </p>
         <div class="status-bar" aria-hidden="true"><i id="statusBar"></i></div>
-      </div>
-
-      <div class="countdown" id="countdown" role="timer" aria-label="Зворотний відлік до Нового 2027 року">
-        <p class="countdown-label" id="countdownLabel">До запуску 2027</p>
-        <div class="countdown-row" id="countdownRow" aria-hidden="true">
-          <div class="cd"><span class="cd-num" id="cdDays">00</span><span class="cd-unit" id="cdDaysUnit">днів</span></div>
-          <span class="cd-sep">:</span>
-          <div class="cd"><span class="cd-num" id="cdHours">00</span><span class="cd-unit">год</span></div>
-          <span class="cd-sep">:</span>
-          <div class="cd"><span class="cd-num" id="cdMins">00</span><span class="cd-unit">хв</span></div>
-          <span class="cd-sep">:</span>
-          <div class="cd"><span class="cd-num" id="cdSecs">00</span><span class="cd-unit">сек</span></div>
-        </div>
-        <span class="visually-hidden" id="countdownSr"></span>
       </div>
 
       <p class="lead">Кажуть, кожен новий рік приховує безліч можливостей. Хочеш дізнатися, що готує для тебе 2027?</p>
@@ -291,13 +278,24 @@
     </noscript>
   </main>
 
-  <footer class="foot">project.me.club · з Новим 2027 роком</footer>
+  <footer class="foot">
+    <!-- Зворотний відлік: прихований, доки JS не підставить реальний час -->
+    <div class="ny" id="countdown" role="timer" aria-label="Зворотний відлік до Нового 2027 року" hidden>
+      <span class="ny-lights" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="ny-label" id="countdownLabel">До Нового року</span>
+      <span class="ny-time" id="countdownRow" aria-hidden="true">
+        <b id="cdDays">0</b><small id="cdDaysUnit">днів</small><b id="cdHours">00</b><i class="ny-colon">:</i><b id="cdMins">00</b><i class="ny-colon">:</i><b id="cdSecs">00</b>
+      </span>
+      <span class="visually-hidden" id="countdownSr"></span>
+    </div>
+    <p class="foot-brand">project.me.club</p>
+  </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/effects.js" defer></script>
-  <script src="js/app.js" defer></script>
-  <script src="js/game.js" defer></script>
-  <script src="js/catcher.js" defer></script>
+  <script src="js/effects.js?v=2026111603" defer></script>
+  <script src="js/app.js?v=2026111603" defer></script>
+  <script src="js/game.js?v=2026111603" defer></script>
+  <script src="js/catcher.js?v=2026111603" defer></script>
 </body>
 </html>

@@ -33,18 +33,34 @@
 
   /* ---------- Дані ---------- */
 
-  var dataReady = fetch(DATA_URL, { cache: 'no-cache' })
-    .then(function (res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.json();
-    })
-    .then(function (data) {
-      var list = Array.isArray(data) ? data : (data && data.predictions) || [];
-      list = list.filter(function (p) { return p && p.id != null && typeof p.text === 'string' && p.text.trim(); });
-      if (!list.length) throw new Error('Порожня база передбачень');
-      return list;
+  var DATA_TIMEOUT = 10000; // мс: довше не чекаємо, щоб перемішування не крутилося вічно
+  var dataPromise = null;
+
+  // Завантажує базу один раз; якщо не вдалося — наступне натискання спробує знову
+  function loadData() {
+    if (dataPromise) return dataPromise;
+    var request = fetch(DATA_URL, { cache: 'no-cache' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data : (data && data.predictions) || [];
+        list = list.filter(function (p) { return p && p.id != null && typeof p.text === 'string' && p.text.trim(); });
+        if (!list.length) throw new Error('Порожня база передбачень');
+        return list;
+      });
+    var timeout = new Promise(function (_, reject) {
+      window.setTimeout(function () { reject(new Error('Таймаут завантаження бази')); }, DATA_TIMEOUT);
     });
-  dataReady.catch(function (err) { console.error('[predictions]', err); });
+    dataPromise = Promise.race([request, timeout]);
+    dataPromise.catch(function (err) {
+      console.error('[predictions]', err);
+      dataPromise = null;
+    });
+    return dataPromise;
+  }
+  loadData();
 
   /* ---------- Без повторів, поки не переглянуто всі ---------- */
 
@@ -106,6 +122,7 @@
     currentView = name;
     Object.keys(views).forEach(function (key) {
       var v = views[key];
+      if (!v) return; // екрана немає в розмітці (напр. стара сторінка з кешу) — не падаємо
       var active = key === name;
       v.hidden = !active;
       v.classList.remove('is-entering');
@@ -209,12 +226,26 @@
     if (busy) return;
     busy = true;
 
-    deck.classList.remove('is-revealing');
-    showView('loading');
-    var stopPhrases = cyclePhrases();
+    var stopPhrases = function () {};
+    function fail(err) {
+      if (err) console.error('[reveal]', err);
+      stopPhrases();
+      try { showView('intro'); } catch (e) { /* остання лінія оборони */ }
+      toast('Не вдалося завантажити передбачення. Спробуй ще раз або онови сторінку 🙏');
+      busy = false;
+    }
+
+    try {
+      deck.classList.remove('is-revealing');
+      showView('loading');
+      stopPhrases = cyclePhrases();
+    } catch (err) {
+      fail(err);
+      return;
+    }
     var minDelay = reduceMotion ? 700 : (isRepeat ? 2100 : 2700);
 
-    Promise.all([dataReady, wait(minDelay)])
+    Promise.all([loadData(), wait(minDelay)])
       .then(function (res) {
         var result = pickPrediction(res[0]);
         current = result.prediction;
@@ -241,12 +272,7 @@
           }, 900);
         }
       })
-      .catch(function () {
-        stopPhrases();
-        showView('intro');
-        toast('Не вдалося завантажити передбачення. Онови сторінку, будь ласка 🙏');
-      })
-      .then(function () { busy = false; });
+      .then(function () { busy = false; }, fail);
   }
 
   /* ---------- Поділитися ---------- */
@@ -397,7 +423,7 @@
       $('countdownRow').hidden = true;
       sr.textContent = 'Новий 2027 рік настав!';
       if ($('status').classList.contains('is-ready')) $('statusLabel').textContent = statusFinalText();
-      if (live && window.Sky && currentView === 'intro') {
+      if (live && window.Sky) {
         var r = box.getBoundingClientRect();
         window.Sky.burst(r.left + r.width / 2, r.top + r.height / 2, { count: 70, power: 7 });
       }
@@ -425,6 +451,7 @@
     }
 
     tick(false);
+    box.hidden = false; // показуємо лише з реальними цифрами
     if (!celebrated) timer = window.setInterval(function () { tick(true); }, 1000);
   }
 
