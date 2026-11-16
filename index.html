@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Project Me Club · Твоє передбачення на 2027</title>
+  <meta name="description" content="Новорічний подарунок від Project Me Club: натисни кнопку й дізнайся, що готує для тебе 2027 рік.">
+  <meta name="theme-color" content="#041330">
+
+  <!-- Прев'ю посилання (Telegram, Viber, соцмережі).
+       Після розміщення на хостингу заміни og:image і og:url на повні адреси, напр. https://your-site.netlify.app/assets/og-image.png -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Твоє передбачення на 2027 ✨">
+  <meta property="og:description" content="Project Me Club приготував для тебе дещо особливе. Відкрий своє передбачення на новий рік.">
+  <meta property="og:image" content="assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="uk_UA">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Roboto+Slab:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="preload" href="data/predictions.json" as="fetch" type="application/json" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Фон: нічне небо, сяйво, сніг -->
+  <div class="aurora" aria-hidden="true"></div>
+  <canvas id="sky" class="sky" aria-hidden="true"></canvas>
+
+  <!-- Силует старого кампусу з теплими вікнами -->
+  <svg class="campus" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="window-glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <g id="campus-half">
+        <!-- дерева -->
+        <circle cx="28" cy="222" r="46"/>
+        <circle cx="78" cy="240" r="40"/>
+        <circle cx="6" cy="256" r="36"/>
+        <!-- дальнє крило -->
+        <rect x="60" y="206" width="210" height="94"/>
+        <path d="M60 206v-9h10v9zM84 206v-9h10v9zM108 206v-9h10v9zM216 206v-9h10v9zM240 206v-9h10v9z"/>
+        <polygon points="136,206 175,166 214,206"/>
+        <rect x="174" y="150" width="2" height="18"/>
+        <!-- бічна вежа -->
+        <rect x="266" y="122" width="48" height="178"/>
+        <path d="M266 122v-8h9v8zM305 122v-8h9v8z"/>
+        <polygon points="270,116 290,52 310,116"/>
+        <rect x="289" y="34" width="2" height="20"/>
+        <!-- головне крило -->
+        <rect x="314" y="170" width="210" height="130"/>
+        <path d="M314 170v-9h12v9zM344 170v-9h12v9zM374 170v-9h12v9zM404 170v-9h12v9zM434 170v-9h12v9zM464 170v-9h12v9zM494 170v-9h12v9z"/>
+        <polygon points="358,162 364,128 370,162"/>
+        <polygon points="418,162 424,128 430,162"/>
+        <polygon points="478,162 484,128 490,162"/>
+        <!-- вежа біля брами -->
+        <rect x="504" y="88" width="36" height="212"/>
+        <polygon points="504,90 522,22 540,90"/>
+        <rect x="521" y="6" width="2" height="18"/>
+        <!-- центральний фронтон (половина) -->
+        <rect x="540" y="118" width="60" height="182"/>
+        <polygon points="540,118 600,46 600,118"/>
+      </g>
+      <g id="campus-windows-half">
+        <path d="M86 258v-17a6 6 0 0 1 12 0v17zM122 258v-17a6 6 0 0 1 12 0v17zM216 258v-17a6 6 0 0 1 12 0v17zM244 258v-17a6 6 0 0 1 12 0v17z"/>
+        <path d="M284 176v-18a6 6 0 0 1 12 0v18zM284 236v-18a6 6 0 0 1 12 0v18z"/>
+        <path class="w-twinkle" d="M336 230v-24a7 7 0 0 1 14 0v24zM376 230v-24a7 7 0 0 1 14 0v24z"/>
+        <path d="M416 230v-24a7 7 0 0 1 14 0v24zM456 230v-24a7 7 0 0 1 14 0v24zM496 230v-24a7 7 0 0 1 14 0v24z"/>
+        <path class="w-twinkle w-twinkle--late" d="M336 284v-20a7 7 0 0 1 14 0v20zM456 284v-20a7 7 0 0 1 14 0v20z"/>
+        <path d="M516 150v-22a6 6 0 0 1 12 0v22zM516 210v-22a6 6 0 0 1 12 0v22z"/>
+      </g>
+    </defs>
+    <g class="campus-body">
+      <use href="#campus-half"/>
+      <use href="#campus-half" transform="matrix(-1 0 0 1 1200 0)"/>
+      <rect x="0" y="292" width="1200" height="8"/>
+    </g>
+    <g class="campus-windows">
+      <use href="#campus-windows-half"/>
+      <use href="#campus-windows-half" transform="matrix(-1 0 0 1 1200 0)"/>
+      <circle class="rose" cx="600" cy="150" r="17"/>
+      <path class="door" d="M584 292v-30a16 16 0 0 1 32 0v30z"/>
+    </g>
+  </svg>
+
+  <main class="stage">
+    <!-- 1. Головний екран -->
+    <section class="view view-intro" id="intro">
+      <img class="logo" src="assets/logo.png" alt="Project Me Club" width="520" height="520" decoding="async">
+
+      <p class="greeting">Привіт! Ми приготували для тебе дещо особливе ✨</p>
+
+      <h1 class="year"><span class="visually-hidden">Новий рік </span><span class="year-digits">2027</span></h1>
+
+      <div class="status" id="status">
+        <p class="status-text">
+          <span id="statusLabel">Завантаження нового року…</span>
+          <span class="status-pct" id="statusPct" aria-hidden="true">0%</span>
+        </p>
+        <div class="status-bar" aria-hidden="true"><i id="statusBar"></i></div>
+      </div>
+
+      <p class="lead">Кажуть, кожен новий рік приховує безліч можливостей. Хочеш дізнатися, що готує для тебе 2027?</p>
+
+      <button class="btn btn-primary" id="openBtn" type="button">
+        <span>Відкрити моє передбачення ✨</span>
+      </button>
+    </section>
+
+    <!-- 2. Магічне перемішування -->
+    <section class="view view-loading" id="loading" hidden>
+      <div class="deck" id="deck" aria-hidden="true">
+        <div class="deck-card"><span>P</span></div>
+        <div class="deck-card"><span>P</span></div>
+        <div class="deck-card"><span>P</span></div>
+        <div class="deck-card"><span>P</span></div>
+        <div class="deck-card"><span>P</span></div>
+      </div>
+      <p class="loading-text" id="loadingText" aria-live="polite">Перемішуємо зірки…</p>
+    </section>
+
+    <!-- 3. Картка з передбаченням -->
+    <section class="view view-result" id="result" hidden>
+      <article class="card" id="card" tabindex="-1" aria-labelledby="cardTitle" aria-describedby="cardText">
+        <span class="corner corner-tl" aria-hidden="true">✦</span>
+        <span class="corner corner-tr" aria-hidden="true">✦</span>
+        <span class="corner corner-bl" aria-hidden="true">✦</span>
+        <span class="corner corner-br" aria-hidden="true">✦</span>
+
+        <p class="card-kicker">Project Me Club · 2027</p>
+        <h2 class="card-title" id="cardTitle">Твоє передбачення на 2027</h2>
+        <div class="divider" aria-hidden="true"><span>✦</span></div>
+        <p class="card-text" id="cardText"></p>
+
+        <div class="seal" id="seal" aria-hidden="true"></div>
+      </article>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="againBtn" type="button"><span>Спробувати ще раз ✨</span></button>
+        <button class="btn btn-ghost" id="shareBtn" type="button"><span>Поділитися</span></button>
+      </div>
+    </section>
+
+    <noscript>
+      <p class="noscript">Щоб отримати передбачення, увімкни, будь ласка, JavaScript у браузері ✨</p>
+    </noscript>
+  </main>
+
+  <footer class="foot">project.me.club · з Новим 2027 роком</footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/effects.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Brand source files and the original brief: not needed on the site
+imgs/
+site idea.txt
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+__pycache__/
