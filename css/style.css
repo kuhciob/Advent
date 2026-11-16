@@ -520,6 +520,7 @@ body {
   position: absolute;
   right: 22px;
   bottom: -28px;
+  z-index: 2; /* над подвійною рамкою картки (::before/::after), щоб лінія не перетинала печатку */
   width: 68px;
   height: 68px;
   filter: drop-shadow(0 6px 10px rgba(40, 6, 22, 0.45));
@@ -542,6 +543,231 @@ body {
   gap: 14px;
 }
 .actions .btn-ghost { width: min(100%, 340px); }
+
+/* ---------- Текстова кнопка (вхід у гру тощо) ---------- */
+
+.link-btn {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border: 0;
+  background: none;
+  color: var(--gold-bright);
+  font: 600 0.95rem/1.3 var(--font-sans);
+  text-decoration: underline;
+  text-decoration-color: rgba(241, 220, 174, 0.45);
+  text-underline-offset: 5px;
+  cursor: pointer;
+  border-radius: 8px;
+  touch-action: manipulation;
+}
+.link-btn:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+@media (hover: hover) {
+  .link-btn:hover { text-decoration-color: var(--gold-bright); }
+}
+.view-result .link-btn { margin-top: -8px; }
+
+/* ---------- Міні-гра «Знайди пару» ---------- */
+
+.view-game { max-width: 460px; }
+
+.game-head {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  justify-self: start;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  color: var(--white);
+  font: 600 0.9rem/1.2 var(--font-sans);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.back-btn:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+@media (hover: hover) { .back-btn:hover { background: rgba(255, 255, 255, 0.12); } }
+@media (max-width: 359px) { .back-btn span { display: none; } }
+
+.game-title {
+  margin: 0;
+  font-family: var(--font-slab);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 6.4vw, 1.9rem);
+  color: var(--white);
+  text-shadow: 0.04em 0.04em 0 var(--navy), 0.075em 0.075em 0 var(--gold);
+  white-space: nowrap;
+  outline: none;
+}
+
+.game-sub {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+}
+
+.game-stats {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0 18px;
+}
+
+.stat {
+  min-width: 82px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.stat-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.stat-value {
+  font: 700 1.08rem/1.2 var(--font-slab);
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.game-board {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.game-board[hidden] { display: none; }
+
+.memory-grid {
+  width: min(100%, 400px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(8px, 2.4vw, 12px);
+  perspective: 900px;
+}
+
+.m-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.m-card:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 3px; }
+.m-card[aria-disabled="true"] { cursor: default; }
+
+.m-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.5s var(--ease-out);
+}
+.m-card.is-flipped .m-inner,
+.m-card.is-matched .m-inner { transform: rotateY(180deg); }
+
+.m-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.m-back {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(241, 220, 174, 0.25) 0 1px, transparent 2px) 0 0 / 14px 14px,
+    linear-gradient(160deg, #0d3f84 0%, var(--navy) 45%, #05214a 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+    inset 0 0 0 5px var(--navy),
+    inset 0 0 0 6px rgba(214, 186, 139, 0.7),
+    0 8px 18px rgba(0, 0, 0, 0.35);
+}
+.m-back span {
+  font-family: var(--font-slab);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 7.5vw, 2.2rem);
+  color: var(--white);
+  text-shadow: 0.04em 0.04em 0 var(--navy), 0.08em 0.08em 0 var(--gold);
+  line-height: 1;
+}
+
+.m-front {
+  transform: rotateY(180deg);
+  background: linear-gradient(170deg, var(--cream) 0%, var(--cream-2) 100%);
+  box-shadow:
+    inset 0 0 0 4px var(--cream),
+    inset 0 0 0 5px rgba(214, 186, 139, 0.9),
+    0 8px 18px rgba(0, 0, 0, 0.35);
+  transition: box-shadow 0.3s;
+}
+.m-front svg { width: 64%; height: auto; }
+
+.m-card.is-matched .m-front {
+  box-shadow:
+    inset 0 0 0 4px var(--cream),
+    inset 0 0 0 6px var(--gold),
+    0 0 22px rgba(241, 220, 174, 0.6);
+}
+.m-card.is-matched { animation: m-pop 0.45s var(--ease-spring); }
+.m-card.is-wrong { animation: m-shake 0.4s ease; }
+
+@keyframes m-pop {
+  50% { transform: scale(1.08); }
+}
+@keyframes m-shake {
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.memory-grid.is-dealing .m-card {
+  animation: m-deal 0.45s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+@keyframes m-deal {
+  from { opacity: 0; transform: translateY(14px) scale(0.9); }
+}
+
+.game-win {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+.game-win[hidden] { display: none; }
+
+.win-card .card-title { outline: none; }
+.win-stats {
+  margin: 0 0 10px;
+  font: 700 1.5rem/1.2 var(--font-slab);
+  color: var(--burgundy-2);
+}
+.win-record {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--navy);
+}
 
 /* ---------- Футер, тост ---------- */
 

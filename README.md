@@ -10,6 +10,7 @@ index.html                 розмітка всіх трьох екранів
 css/style.css              стилі (кольори задані змінними на початку файлу)
 js/app.js                  логіка: вибір без повторів, екрани, «Поділитися»
 js/effects.js              сніг, зірки, золоті іскри (canvas)
+js/game.js                 міні-гра «Знайди пару» (іконки, ходи, час, рекорд у localStorage)
 data/predictions.json      база передбачень (редагується вручну)
 assets/                    логотип, favicon, картинка-прев'ю og-image.png
 tools/check_predictions.py перевірка бази

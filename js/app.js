@@ -16,7 +16,9 @@
 
   function $(id) { return document.getElementById(id); }
 
-  var views = { intro: $('intro'), loading: $('loading'), result: $('result') };
+  var views = { intro: $('intro'), loading: $('loading'), result: $('result'), game: $('game') };
+  var currentView = 'intro';
+  var viewBeforeGame = 'intro';
   var deck = $('deck');
   var card = $('card');
   var cardText = $('cardText');
@@ -98,6 +100,7 @@
   function wait(ms) { return new Promise(function (r) { window.setTimeout(r, ms); }); }
 
   function showView(name) {
+    currentView = name;
     Object.keys(views).forEach(function (key) {
       var v = views[key];
       var active = key === name;
@@ -302,4 +305,31 @@
   $('openBtn').addEventListener('click', function () { reveal(false); });
   $('againBtn').addEventListener('click', function () { reveal(true); });
   $('shareBtn').addEventListener('click', share);
+
+  /* ---------- Міні-гра ---------- */
+
+  function openGame() {
+    if (busy || !window.MemoryGame) return;
+    viewBeforeGame = currentView === 'result' ? 'result' : 'intro';
+    showView('game');
+    window.MemoryGame.newGame();
+    try { $('gameTitle').focus({ preventScroll: true }); } catch (e) { $('gameTitle').focus(); }
+  }
+
+  function closeGame() {
+    if (window.MemoryGame) window.MemoryGame.stop();
+    showView(viewBeforeGame);
+    var target = viewBeforeGame === 'result' ? card : $('openBtn');
+    try { target.focus({ preventScroll: true }); } catch (e) { target.focus(); }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.js-open-game'), function (btn) {
+    btn.addEventListener('click', openGame);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.js-game-back'), function (btn) {
+    btn.addEventListener('click', closeGame);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && currentView === 'game') closeGame();
+  });
 })();

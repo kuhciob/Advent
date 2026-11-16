@@ -113,6 +113,8 @@
       <button class="btn btn-primary" id="openBtn" type="button">
         <span>Відкрити моє передбачення ✨</span>
       </button>
+
+      <button class="link-btn js-open-game" type="button">або зіграй у «Знайди пару» 🎮</button>
     </section>
 
     <!-- 2. Магічне перемішування -->
@@ -147,6 +149,43 @@
         <button class="btn btn-primary" id="againBtn" type="button"><span>Спробувати ще раз ✨</span></button>
         <button class="btn btn-ghost" id="shareBtn" type="button"><span>Поділитися</span></button>
       </div>
+      <button class="link-btn js-open-game" type="button">Зіграти в «Знайди пару» 🎮</button>
+    </section>
+
+    <!-- 4. Міні-гра «Знайди пару» -->
+    <section class="view view-game" id="game" hidden>
+      <div class="game-head">
+        <button class="back-btn js-game-back" type="button" aria-label="Назад до передбачень">←<span> Назад</span></button>
+        <h2 class="game-title" id="gameTitle" tabindex="-1">Знайди пару</h2>
+        <span class="game-head-spacer" aria-hidden="true"></span>
+      </div>
+      <p class="game-sub">Відкривай по дві картки й шукай однакові ✨</p>
+
+      <div class="game-stats">
+        <div class="stat"><span class="stat-label">Ходи</span><span class="stat-value" id="gMoves">0</span></div>
+        <div class="stat"><span class="stat-label">Час</span><span class="stat-value" id="gTime">0:00</span></div>
+        <div class="stat"><span class="stat-label">Рекорд</span><span class="stat-value" id="gBest">—</span></div>
+      </div>
+
+      <div class="game-board" id="gameBoard">
+        <div class="memory-grid" id="memoryGrid" aria-label="Ігрове поле: 12 карток"></div>
+        <button class="link-btn" id="gRestart" type="button">Перемішати й почати заново</button>
+      </div>
+
+      <div class="game-win" id="gameWin" hidden>
+        <article class="card win-card" id="winCard">
+          <p class="card-kicker">Project Me Club · 2027</p>
+          <h3 class="card-title" id="winTitle" tabindex="-1">Усі пари знайдено!</h3>
+          <div class="divider" aria-hidden="true"><span>✦</span></div>
+          <p class="win-stats" id="winStats"></p>
+          <p class="card-text win-rank" id="winRank"></p>
+          <p class="win-record" id="winRecord"></p>
+        </article>
+        <div class="actions">
+          <button class="btn btn-primary" id="gPlayAgain" type="button"><span>Зіграти ще раз 🎮</span></button>
+          <button class="btn btn-ghost js-game-back" type="button"><span>До передбачень ✨</span></button>
+        </div>
+      </div>
     </section>
 
     <noscript>
@@ -160,5 +199,6 @@
 
   <script src="js/effects.js" defer></script>
   <script src="js/app.js" defer></script>
+  <script src="js/game.js" defer></script>
 </body>
 </html>
