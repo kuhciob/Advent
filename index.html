@@ -108,13 +108,27 @@
         <div class="status-bar" aria-hidden="true"><i id="statusBar"></i></div>
       </div>
 
+      <div class="countdown" id="countdown" role="timer" aria-label="Зворотний відлік до Нового 2027 року">
+        <p class="countdown-label" id="countdownLabel">До запуску 2027</p>
+        <div class="countdown-row" id="countdownRow" aria-hidden="true">
+          <div class="cd"><span class="cd-num" id="cdDays">00</span><span class="cd-unit" id="cdDaysUnit">днів</span></div>
+          <span class="cd-sep">:</span>
+          <div class="cd"><span class="cd-num" id="cdHours">00</span><span class="cd-unit">год</span></div>
+          <span class="cd-sep">:</span>
+          <div class="cd"><span class="cd-num" id="cdMins">00</span><span class="cd-unit">хв</span></div>
+          <span class="cd-sep">:</span>
+          <div class="cd"><span class="cd-num" id="cdSecs">00</span><span class="cd-unit">сек</span></div>
+        </div>
+        <span class="visually-hidden" id="countdownSr"></span>
+      </div>
+
       <p class="lead">Кажуть, кожен новий рік приховує безліч можливостей. Хочеш дізнатися, що готує для тебе 2027?</p>
 
       <button class="btn btn-primary" id="openBtn" type="button">
         <span>Відкрити моє передбачення ✨</span>
       </button>
 
-      <button class="link-btn js-open-game" type="button">або зіграй у «Знайди пару» 🎮</button>
+      <button class="link-btn js-open-games" type="button">або зіграй у новорічні ігри 🎮</button>
     </section>
 
     <!-- 2. Магічне перемішування -->
@@ -149,14 +163,47 @@
         <button class="btn btn-primary" id="againBtn" type="button"><span>Спробувати ще раз ✨</span></button>
         <button class="btn btn-ghost" id="shareBtn" type="button"><span>Поділитися</span></button>
       </div>
-      <button class="link-btn js-open-game" type="button">Зіграти в «Знайди пару» 🎮</button>
+      <button class="link-btn js-open-games" type="button">Новорічні ігри 🎮</button>
     </section>
 
-    <!-- 4. Міні-гра «Знайди пару» -->
-    <section class="view view-game" id="game" hidden>
+    <!-- 4. Вибір гри -->
+    <section class="view view-game view-games" id="games" hidden>
       <div class="game-head">
-        <button class="back-btn js-game-back" type="button" aria-label="Назад до передбачень">←<span> Назад</span></button>
-        <h2 class="game-title" id="gameTitle" tabindex="-1">Знайди пару</h2>
+        <button class="back-btn js-to-origin" type="button" aria-label="Назад до передбачень">←<span> Назад</span></button>
+        <h2 class="game-title" id="gamesTitle" tabindex="-1">Ігри</h2>
+        <span class="game-head-spacer" aria-hidden="true"></span>
+      </div>
+      <p class="game-sub">Обирай гру, передбачення нікуди не втечуть ✨</p>
+
+      <div class="games-list">
+        <button class="game-tile" type="button" data-game="memory">
+          <span class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><g transform="rotate(-10 16 24)"><rect x="6" y="10" width="20" height="28" rx="3" fill="#0d3f84" stroke="#d6ba8b" stroke-width="1.5"/><text x="16" y="30" text-anchor="middle" font-family="Roboto Slab, Georgia, serif" font-weight="800" font-size="14" fill="#fff">P</text></g><g transform="rotate(9 32 25)"><rect x="22" y="11" width="20" height="28" rx="3" fill="#f5eee1" stroke="#d6ba8b" stroke-width="1.5"/><path transform="translate(32 25) scale(0.7)" d="M0-10L2.35-3.24 9.51-3.09 3.8 1.24 5.88 8.09 0 4-5.88 8.09-3.8 1.24-9.51-3.09-2.35-3.24Z" fill="#d6ba8b" stroke="#09346f" stroke-width="1.6" stroke-linejoin="round"/></g></svg>
+          </span>
+          <span class="tile-body">
+            <span class="tile-title">Знайди пару</span>
+            <span class="tile-desc">Гра на пам’ять: відкривай картки й шукай однакові</span>
+            <span class="tile-best" id="tileBestMemory"></span>
+          </span>
+        </button>
+        <button class="game-tile" type="button" data-game="catcher">
+          <span class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><path d="M14 4v12M31 3v9M37 18v9" stroke="rgba(241,220,174,0.45)" stroke-width="2" stroke-linecap="round"/><path transform="translate(14 23) scale(0.75)" d="M0-10L2.35-3.24 9.51-3.09 3.8 1.24 5.88 8.09 0 4-5.88 8.09-3.8 1.24-9.51-3.09-2.35-3.24Z" fill="#f1dcae"/><path transform="translate(31 17) scale(0.6)" d="M0-10L2.35-3.24 9.51-3.09 3.8 1.24 5.88 8.09 0 4-5.88 8.09-3.8 1.24-9.51-3.09-2.35-3.24Z" fill="#f1dcae"/><path transform="translate(36 34) scale(0.85)" d="M0-10L2.35-3.24 9.51-3.09 3.8 1.24 5.88 8.09 0 4-5.88 8.09-3.8 1.24-9.51-3.09-2.35-3.24Z" fill="#f1dcae"/><ellipse cx="17" cy="38" rx="4.5" ry="5.5" fill="#7ed957" stroke="#0b2550" stroke-width="1.2"/></svg>
+          </span>
+          <span class="tile-body">
+            <span class="tile-title">Зірколов</span>
+            <span class="tile-desc">30 секунд, щоб наловити якнайбільше зірок і не зачепити баги</span>
+            <span class="tile-best" id="tileBestCatcher"></span>
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 5. Міні-гра «Знайди пару» -->
+    <section class="view view-game" id="memory" hidden>
+      <div class="game-head">
+        <button class="back-btn js-game-back" type="button" aria-label="Назад до списку ігор">←<span> Ігри</span></button>
+        <h2 class="game-title" id="memoryTitle" tabindex="-1">Знайди пару</h2>
         <span class="game-head-spacer" aria-hidden="true"></span>
       </div>
       <p class="game-sub">Відкривай по дві картки й шукай однакові ✨</p>
@@ -183,8 +230,59 @@
         </article>
         <div class="actions">
           <button class="btn btn-primary" id="gPlayAgain" type="button"><span>Зіграти ще раз 🎮</span></button>
-          <button class="btn btn-ghost js-game-back" type="button"><span>До передбачень ✨</span></button>
+          <button class="btn btn-ghost js-to-origin" type="button"><span>До передбачень ✨</span></button>
         </div>
+        <button class="link-btn js-game-back" type="button">Інші ігри</button>
+      </div>
+    </section>
+
+    <!-- 6. Міні-гра «Зірколов» -->
+    <section class="view view-game view-catcher" id="catcher" hidden>
+      <div class="game-head">
+        <button class="back-btn js-game-back" type="button" aria-label="Назад до списку ігор">←<span> Ігри</span></button>
+        <h2 class="game-title" id="catcherTitle" tabindex="-1">Зірколов</h2>
+        <span class="game-head-spacer" aria-hidden="true"></span>
+      </div>
+
+      <div class="game-stats">
+        <div class="stat"><span class="stat-label">Очки</span><span class="stat-value" id="cScore">0</span></div>
+        <div class="stat" id="cTimeBox"><span class="stat-label">Час</span><span class="stat-value" id="cTime">30</span></div>
+        <div class="stat"><span class="stat-label">Рекорд</span><span class="stat-value" id="cBest">—</span></div>
+      </div>
+
+      <div class="game-board" id="catcherBoard">
+        <div class="catcher-stage" id="catcherStage">
+          <canvas class="catcher-canvas" id="catcherCanvas" aria-label="Ігрове поле: тапай по зірках і подарунках, оминай баги"></canvas>
+
+          <div class="catcher-intro" id="catcherIntro">
+            <p class="catcher-rules">За 30 секунд злови якнайбільше:</p>
+            <ul class="catcher-legend">
+              <li><canvas class="legend-icon" data-type="star" aria-hidden="true"></canvas><span>Зірка</span><b>+1</b></li>
+              <li><canvas class="legend-icon" data-type="gift" aria-hidden="true"></canvas><span>Подарунок</span><b>+3</b></li>
+              <li><canvas class="legend-icon" data-type="bug" aria-hidden="true"></canvas><span>Баг — не чіпай!</span><b class="is-minus">−3</b></li>
+            </ul>
+            <button class="btn btn-primary" id="catcherStart" type="button"><span>Почати ✨</span></button>
+          </div>
+
+          <div class="catcher-count" id="catcherCount" hidden aria-live="assertive">3</div>
+        </div>
+      </div>
+
+      <div class="game-win" id="catcherWin" hidden>
+        <article class="card win-card" id="cWinCard">
+          <p class="card-kicker">Project Me Club · 2027</p>
+          <h3 class="card-title" id="cWinTitle" tabindex="-1">Час вийшов!</h3>
+          <div class="divider" aria-hidden="true"><span>✦</span></div>
+          <p class="win-stats" id="cWinStats"></p>
+          <p class="win-detail" id="cWinDetail"></p>
+          <p class="card-text win-rank" id="cWinRank"></p>
+          <p class="win-record" id="cWinRecord"></p>
+        </article>
+        <div class="actions">
+          <button class="btn btn-primary" id="cPlayAgain" type="button"><span>Зіграти ще раз 🎮</span></button>
+          <button class="btn btn-ghost js-to-origin" type="button"><span>До передбачень ✨</span></button>
+        </div>
+        <button class="link-btn js-game-back" type="button">Інші ігри</button>
       </div>
     </section>
 
@@ -200,5 +298,6 @@
   <script src="js/effects.js" defer></script>
   <script src="js/app.js" defer></script>
   <script src="js/game.js" defer></script>
+  <script src="js/catcher.js" defer></script>
 </body>
 </html>

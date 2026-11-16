@@ -291,5 +291,10 @@
   $('gRestart').addEventListener('click', newGame);
   $('gPlayAgain').addEventListener('click', newGame);
 
-  window.MemoryGame = { newGame: newGame, stop: stop };
+  function bestText() {
+    var b = readBest();
+    return b ? 'Рекорд: ' + b.moves + ' ' + plural(b.moves, 'хід', 'ходи', 'ходів') + ' · ' + fmtTime(b.seconds) : '';
+  }
+
+  window.MemoryGame = { newGame: newGame, stop: stop, bestText: bestText };
 })();

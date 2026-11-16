@@ -16,9 +16,12 @@
 
   function $(id) { return document.getElementById(id); }
 
-  var views = { intro: $('intro'), loading: $('loading'), result: $('result'), game: $('game') };
+  var views = {
+    intro: $('intro'), loading: $('loading'), result: $('result'),
+    games: $('games'), memory: $('memory'), catcher: $('catcher')
+  };
   var currentView = 'intro';
-  var viewBeforeGame = 'intro';
+  var originView = 'intro'; // звідки відкрили ігри: головний екран чи картка
   var deck = $('deck');
   var card = $('card');
   var cardText = $('cardText');
@@ -130,16 +133,20 @@
 
   /* ---------- Статус «Завантаження нового року…» ---------- */
 
+  var NEW_YEAR = new Date(2027, 0, 1, 0, 0, 0).getTime(); // північ за місцевим часом
+
+  function statusFinalText() {
+    return Date.now() >= NEW_YEAR ? 'Твій 2027 уже запущено 🚀' : 'Твій 2027 майже готовий до запуску';
+  }
+
   function runStatus() {
     var box = $('status');
     var label = $('statusLabel');
     var pct = $('statusPct');
     var bar = $('statusBar');
-    var finalText = 'Твій 2027 майже готовий до запуску';
-
     function finish() {
       bar.style.width = '99%';
-      label.textContent = finalText;
+      label.textContent = statusFinalText();
       box.classList.add('is-ready');
     }
 
@@ -306,30 +313,120 @@
   $('againBtn').addEventListener('click', function () { reveal(true); });
   $('shareBtn').addEventListener('click', share);
 
-  /* ---------- Міні-гра ---------- */
+  /* ---------- Ігри ---------- */
 
-  function openGame() {
-    if (busy || !window.MemoryGame) return;
-    viewBeforeGame = currentView === 'result' ? 'result' : 'intro';
-    showView('game');
-    window.MemoryGame.newGame();
-    try { $('gameTitle').focus({ preventScroll: true }); } catch (e) { $('gameTitle').focus(); }
+  function focusEl(el) {
+    if (!el) return;
+    try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
   }
 
-  function closeGame() {
+  function stopGames() {
     if (window.MemoryGame) window.MemoryGame.stop();
-    showView(viewBeforeGame);
-    var target = viewBeforeGame === 'result' ? card : $('openBtn');
-    try { target.focus({ preventScroll: true }); } catch (e) { target.focus(); }
+    if (window.StarCatcher) window.StarCatcher.stop();
   }
 
-  Array.prototype.forEach.call(document.querySelectorAll('.js-open-game'), function (btn) {
-    btn.addEventListener('click', openGame);
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('.js-game-back'), function (btn) {
-    btn.addEventListener('click', closeGame);
-  });
+  function openGames() {
+    if (busy) return;
+    if (currentView === 'intro' || currentView === 'result') originView = currentView;
+    stopGames();
+    $('tileBestMemory').textContent = window.MemoryGame ? window.MemoryGame.bestText() : '';
+    $('tileBestCatcher').textContent = window.StarCatcher ? window.StarCatcher.bestText() : '';
+    showView('games');
+    focusEl($('gamesTitle'));
+  }
+
+  function openGame(name) {
+    if (name === 'memory' && window.MemoryGame) {
+      showView('memory');
+      window.MemoryGame.newGame();
+      focusEl($('memoryTitle'));
+    } else if (name === 'catcher' && window.StarCatcher) {
+      showView('catcher');
+      window.StarCatcher.show();
+      focusEl($('catcherTitle'));
+    }
+  }
+
+  function backToOrigin() {
+    stopGames();
+    showView(originView);
+    focusEl(originView === 'result' ? card : $('openBtn'));
+  }
+
+  function bindAll(selector, handler) {
+    Array.prototype.forEach.call(document.querySelectorAll(selector), function (btn) {
+      btn.addEventListener('click', handler);
+    });
+  }
+
+  bindAll('.js-open-games', openGames);
+  bindAll('.js-game-back', openGames);
+  bindAll('.js-to-origin', backToOrigin);
+  bindAll('.game-tile', function (e) { openGame(e.currentTarget.dataset.game); });
+
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && currentView === 'game') closeGame();
+    if (e.key !== 'Escape') return;
+    if (currentView === 'memory' || currentView === 'catcher') openGames();
+    else if (currentView === 'games') backToOrigin();
   });
+
+  /* ---------- Зворотний відлік до Нового року ---------- */
+
+  function runCountdown() {
+    var box = $('countdown');
+    if (!box) return;
+    var target = NEW_YEAR;
+    var els = { d: $('cdDays'), du: $('cdDaysUnit'), h: $('cdHours'), m: $('cdMins'), s: $('cdSecs') };
+    var sr = $('countdownSr');
+    var timer = null;
+    var celebrated = false;
+
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function plural(n, one, few, many) {
+      var m10 = n % 10, m100 = n % 100;
+      if (m10 === 1 && m100 !== 11) return one;
+      if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+      return many;
+    }
+
+    function celebrate(live) {
+      if (celebrated) return;
+      celebrated = true;
+      box.classList.add('is-done');
+      $('countdownLabel').textContent = 'З Новим 2027 роком! 🎉';
+      $('countdownRow').hidden = true;
+      sr.textContent = 'Новий 2027 рік настав!';
+      if ($('status').classList.contains('is-ready')) $('statusLabel').textContent = statusFinalText();
+      if (live && window.Sky && currentView === 'intro') {
+        var r = box.getBoundingClientRect();
+        window.Sky.burst(r.left + r.width / 2, r.top + r.height / 2, { count: 70, power: 7 });
+      }
+    }
+
+    function tick(live) {
+      var diff = target - Date.now();
+      if (diff <= 0) {
+        if (timer) window.clearInterval(timer);
+        celebrate(live);
+        return;
+      }
+      var sec = Math.floor(diff / 1000);
+      var d = Math.floor(sec / 86400);
+      var h = Math.floor((sec % 86400) / 3600);
+      var m = Math.floor((sec % 3600) / 60);
+      var s = sec % 60;
+      els.d.textContent = d;
+      els.du.textContent = plural(d, 'день', 'дні', 'днів');
+      els.h.textContent = pad(h);
+      els.m.textContent = pad(m);
+      els.s.textContent = pad(s);
+      // для скрінрідерів — без секунд, щоб не «говорило» щосекунди
+      sr.textContent = 'До Нового року: ' + d + ' ' + plural(d, 'день', 'дні', 'днів') + ', ' + h + ' год ' + m + ' хв';
+    }
+
+    tick(false);
+    if (!celebrated) timer = window.setInterval(function () { tick(true); }, 1000);
+  }
+
+  runCountdown();
 })();

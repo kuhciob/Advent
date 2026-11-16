@@ -196,7 +196,7 @@ body {
 }
 
 .status {
-  margin: 10px 0 22px;
+  margin: 10px 0 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -244,6 +244,67 @@ body {
 @keyframes shimmer {
   from { background-position: 200% 0; }
   to   { background-position: 0 0; }
+}
+
+/* Зворотний відлік до Нового року */
+.countdown {
+  margin: 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.countdown-label {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.countdown-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.countdown-row[hidden] { display: none; }
+.cd {
+  min-width: 58px;
+  padding: 8px 6px 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(214, 186, 139, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cd-num {
+  font: 700 1.45rem/1.1 var(--font-slab);
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+.cd-unit {
+  margin-top: 2px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--gold-bright);
+}
+.cd-sep {
+  padding-top: 8px;
+  font: 700 1.3rem/1.1 var(--font-slab);
+  color: rgba(241, 220, 174, 0.55);
+}
+.countdown.is-done .countdown-label {
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--gold-bright);
+}
+@media (max-width: 359px) {
+  .cd { min-width: 50px; }
+  .cd-num { font-size: 1.25rem; }
+  .countdown-row { gap: 4px; }
 }
 
 .status.is-ready .status-text { animation: soft-pulse 2.4s ease-in-out infinite; }
@@ -767,6 +828,179 @@ body {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--navy);
+}
+
+/* ---------- Вибір гри ---------- */
+
+.games-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.game-tile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 18px;
+  text-align: left;
+  color: var(--navy-ink);
+  background: linear-gradient(170deg, var(--cream) 0%, var(--cream-2) 100%);
+  box-shadow: 4px 4px 0 var(--gold), 0 14px 30px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out);
+  touch-action: manipulation;
+}
+@media (hover: hover) {
+  .game-tile:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--gold), 0 18px 36px rgba(0, 0, 0, 0.4); }
+}
+.game-tile:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--gold), 0 8px 20px rgba(0, 0, 0, 0.35); }
+.game-tile:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 4px; }
+
+.tile-icon {
+  flex: 0 0 64px;
+  height: 64px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, #0d3f84 0%, var(--navy) 50%, #05214a 100%);
+  box-shadow: inset 0 0 0 1px rgba(214, 186, 139, 0.5);
+}
+.tile-icon svg { width: 46px; height: 46px; }
+
+.tile-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tile-title { font: 700 1.2rem/1.2 var(--font-slab); color: var(--navy); }
+.tile-desc { font-size: 0.9rem; line-height: 1.4; color: rgba(11, 37, 80, 0.78); }
+.tile-best { font-size: 0.8rem; font-weight: 700; color: var(--burgundy-2); }
+.tile-best:empty { display: none; }
+
+/* ---------- Зірколов ---------- */
+
+.catcher-stage {
+  position: relative;
+  width: min(100%, 420px);
+  height: clamp(300px, calc(100vh - 340px), 540px);
+  height: clamp(300px, calc(100svh - 340px), 540px);
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(58, 108, 196, 0.28), transparent 65%),
+    rgba(3, 12, 34, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(214, 186, 139, 0.4), 0 20px 50px rgba(0, 0, 0, 0.4);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.catcher-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: rgba(255, 120, 140, 0);
+  transition: background 0.3s;
+}
+.catcher-stage.is-hit { animation: m-shake 0.35s ease; }
+.catcher-stage.is-hit::after { animation: hit-flash 0.45s ease; }
+@keyframes hit-flash {
+  0%   { background: rgba(255, 120, 140, 0.28); }
+  100% { background: rgba(255, 120, 140, 0); }
+}
+
+.catcher-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+
+.catcher-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 20px;
+  background: rgba(4, 19, 48, 0.55);
+}
+.catcher-intro[hidden] { display: none; }
+
+.catcher-rules {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.catcher-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(100%, 270px);
+}
+.catcher-legend li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  text-align: left;
+}
+.catcher-legend span { flex: 1; font-weight: 600; }
+.catcher-legend b { font: 800 1.1rem var(--font-slab); color: var(--gold-bright); }
+.catcher-legend b.is-minus { color: #ff9aa8; }
+.legend-icon { width: 40px; height: 40px; flex: 0 0 40px; }
+
+.catcher-count {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  font: 800 6rem/1 var(--font-slab);
+  color: var(--white);
+  text-shadow: 0.04em 0.04em 0 var(--navy), 0.075em 0.075em 0 var(--gold);
+  pointer-events: none;
+}
+.catcher-count[hidden] { display: none; }
+.catcher-count.is-pop { animation: count-pop 0.7s var(--ease-out) both; }
+@keyframes count-pop {
+  0%   { opacity: 0; transform: scale(1.6); }
+  30%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.2; transform: scale(0.9); }
+}
+
+/* Низькі екрани: правила «Зірколова» компактніші, щоб кнопка «Почати» вміщалася */
+@media (max-height: 700px) {
+  .catcher-intro { gap: 10px; padding: 12px 16px; }
+  .catcher-rules { font-size: 0.9rem; }
+  .catcher-legend { gap: 6px; }
+  .catcher-legend li { padding: 2px 12px 2px 6px; }
+  .legend-icon { width: 32px; height: 32px; flex-basis: 32px; }
+  .catcher-intro .btn { min-height: 48px; padding-top: 11px; padding-bottom: 11px; }
+}
+
+.stat.is-hurry { box-shadow: inset 0 0 0 1.5px #ff9aa8; }
+.stat.is-hurry .stat-value { color: #ffc1ca; }
+
+.win-detail {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--navy-ink);
 }
 
 /* ---------- Футер, тост ---------- */
