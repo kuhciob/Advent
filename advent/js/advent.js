@@ -6,7 +6,7 @@
   'use strict';
 
   // URL вебзастосунку Apps Script (…/exec). Як отримати — README, розділ «Адвент-календар».
-  var ADVENT_API_URL = '';
+  var ADVENT_API_URL = 'https://script.google.com/macros/s/AKfycbxd0glWQiWxMK3_j5FvvJ4YDpY0FU4xLAQZXv10hnR_mcf0o6JTfrsZykjJ1XGN-Md8fg/exec';
   // Лише на localhost: файл із tools/advent_import.py (папка private/ у git не потрапляє)
   var LOCAL_URL = '../private/advent.local.json';
 
