@@ -7,3 +7,7 @@ site idea.txt
 Thumbs.db
 .vscode/
 __pycache__/
+
+# Контент адвенту — лише в Google Таблиці, у публічний репозиторій не потрапляє
+Year Wrap*.md
+private/

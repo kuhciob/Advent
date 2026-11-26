@@ -1383,3 +1383,48 @@ body {
   }
   .btn-primary::after { display: none; }
 }
+
+/* ---------- Кнопка «Адвент-календар» (головна) ---------- */
+
+.btn-advent {
+  width: min(100%, 340px);
+  margin-top: 16px;
+  color: var(--white);
+  text-decoration: none;
+  background:
+    linear-gradient(90deg, transparent 15%, rgba(241, 220, 174, 0.9) 15% 18.5%, transparent 18.5%),
+    linear-gradient(135deg, #a8285a 0%, var(--burgundy-2) 55%, var(--burgundy) 100%);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(241, 220, 174, 0.75),
+    4px 4px 0 var(--gold),
+    0 10px 30px rgba(107, 30, 64, 0.55);
+  animation: advent-pulse 3.2s ease-in-out infinite;
+}
+.btn-advent > span { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
+.view-result .btn-advent { margin-top: -10px; }
+.view-result .actions { flex-wrap: wrap; }
+
+@keyframes advent-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(214, 70, 120, 0)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(214, 70, 120, 0.55)); }
+}
+
+@media (hover: hover) {
+  .btn-advent:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: inset 0 0 0 1.5px rgba(241, 220, 174, 0.9), 6px 6px 0 var(--gold), 0 14px 34px rgba(107, 30, 64, 0.6);
+  }
+}
+.btn-advent:active { transform: translate(3px, 3px); box-shadow: inset 0 0 0 1.5px rgba(241, 220, 174, 0.75), 1px 1px 0 var(--gold); }
+
+/* «Поділитися» і «Скопіювати» — в один рядок під головною кнопкою */
+.view-result .actions { flex-direction: row; justify-content: center; width: min(100%, 340px); }
+.view-result .actions .btn-primary { flex: 1 1 100%; }
+.view-result .actions .btn-ghost { flex: 1 1 0; width: auto; min-width: 0; padding-left: 12px; padding-right: 12px; }
+
+@media (min-width: 768px) {
+  .view-result .actions { width: auto; flex-wrap: nowrap; }
+  .view-result .actions .btn-primary { flex: 0 0 auto; }
+  .view-result .actions .btn-ghost { flex: 0 0 auto; min-width: 150px; }
+  .view-result { max-width: 640px; }
+}

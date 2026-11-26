@@ -280,8 +280,13 @@
 
   function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text);
+      // Вбудовані браузери (Telegram тощо) інколи відмовляють — тоді старий спосіб
+      return navigator.clipboard.writeText(text).catch(function () { return legacyCopy(text); });
     }
+    return legacyCopy(text);
+  }
+
+  function legacyCopy(text) {
     return new Promise(function (resolve, reject) {
       var ta = document.createElement('textarea');
       ta.value = text;
@@ -344,6 +349,12 @@
 
   $('openBtn').addEventListener('click', function () { reveal(false); });
   $('againBtn').addEventListener('click', function () { reveal(true); });
+  $('copyBtn').addEventListener('click', function () {
+    if (!current) return;
+    copyText('«' + current.text.replace(/«/g, '„').replace(/»/g, '“') + '»')
+      .then(function () { toast('Передбачення скопійовано ✨'); })
+      .catch(function () { toast('Не вдалося скопіювати 😔'); });
+  });
   $('shareBtn').addEventListener('click', share);
 
   /* ---------- Ігри ---------- */
