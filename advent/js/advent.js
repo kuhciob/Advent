@@ -207,18 +207,27 @@
       light.style.backgroundPosition = (gx / (100 - gw) * 100) + '% ' + (gy / (100 - gh) * 100) + '%';
       b.appendChild(light);
 
-      // Віконниці: обрізані маскою точно по формі скла (арка, коло…)
+      // Віконниці: кожна стулка обрізана маскою по своїй половині скла (арка, коло…)
+      // і повертається разом зі своєю формою — тому відчинена лягає на стіну поруч
       var shut = document.createElement('span');
       shut.className = 'win-shutters';
       shut.style.left = light.style.left;
       shut.style.top = light.style.top;
       shut.style.width = light.style.width;
       shut.style.height = light.style.height;
-      shut.style.setProperty('-webkit-mask-size', light.style.backgroundSize);
-      shut.style.setProperty('mask-size', light.style.backgroundSize);
-      shut.style.setProperty('-webkit-mask-position', light.style.backgroundPosition);
-      shut.style.setProperty('mask-position', light.style.backgroundPosition);
-      shut.innerHTML = '<span class="leaf leaf--l"></span><span class="leaf leaf--r"></span>';
+      var lw = gw / 2;
+      var maskSize = (100 / lw * 100) + '% ' + (100 / gh * 100) + '%';
+      var maskY = (gy / (100 - gh) * 100) + '%';
+      [['l', gx], ['r', gx + lw]].forEach(function (side) {
+        var leaf = document.createElement('span');
+        leaf.className = 'leaf leaf--' + side[0];
+        var pos = (side[1] / (100 - lw) * 100) + '% ' + maskY;
+        leaf.style.setProperty('-webkit-mask-size', maskSize);
+        leaf.style.setProperty('mask-size', maskSize);
+        leaf.style.setProperty('-webkit-mask-position', pos);
+        leaf.style.setProperty('mask-position', pos);
+        shut.appendChild(leaf);
+      });
       b.appendChild(shut);
 
       var num = document.createElement('span');

@@ -29,6 +29,66 @@ BAND = (1125, 1455)       # поверх, який дублюємо (y від–
 MIRROR_AXIS = 1097        # вісь симетрії фасаду в оригіналі, px
 CROP_X = (4, 2163)        # уся ширина (ялинки цілі), без крайніх пікселів із прозорістю
 EDGE_KEEP = (515, 1660)   # смужки біля стін фасаду беремо з оригіналу (x до/після)
+# Скло вікон (в оригіналі, x0 y0 x1 y1), з боків яких прибираємо намальовані віконниці —
+# там тепер відчиняються анімовані. 2-й поверх дублюється дзеркально, тож прибирається й у копії.
+REMOVE_SHUTTERS = [
+    (612, 866, 721, 1034),    # 1-й поверх, ліве вікно
+    (1190, 1220, 1293, 1382), # 2-й поверх, 3-тє вікно (і його дзеркальна копія)
+    (1487, 1550, 1581, 1728), # 3-й поверх, праве вікно
+    (614, 1890, 715, 2057),   # 4-й поверх, ліве вікно
+]
+
+
+def wall_like(px):
+    r, g, b = px[..., 0].astype(int), px[..., 1].astype(int), px[..., 2].astype(int)
+    return (r > 120) & (r < 215) & (r - g > 18) & (r - g < 75) & (b > g - 25)
+
+
+def remove_shutters(a):
+    """Замальовує намальовані віконниці фактурою стіни з найчистішої сусідньої ділянки."""
+    H, W = a.shape[:2]
+    for gx0, gy0, gx1, gy1 in REMOVE_SHUTTERS:
+        for zx0, zx1 in ((gx0 - 95, gx0 - 6), (gx1 + 6, gx1 + 95)):
+            zy0, zy1 = gy0 - 15, gy1 + 45
+            zone = a[zy0:zy1, zx0:zx1, :3].astype(int)
+            lum = zone.mean(axis=2)
+            dark = lum < 105
+            if dark.sum() < 500:
+                continue
+            # рамка самої віконниці (найбільша темна пляма в зоні)
+            lab, n = ndimage.label(ndimage.binary_closing(dark, iterations=3))
+            big = np.argmax(ndimage.sum(dark, lab, range(1, n + 1))) + 1
+            sy, sx = ndimage.find_objects(lab)[big - 1]
+            y0, y1 = zy0 + sy.start - 4, zy0 + sy.stop + 4
+            x0, x1 = zx0 + sx.start - 4, zx0 + sx.stop + 4
+            region = a[y0:y1, x0:x1, :3].astype(int)
+            r, g, b = region[..., 0], region[..., 1], region[..., 2]
+            # гірлянда (зелене гілля, червоні ягоди) лишається поверх стіни
+            garland = (g - r > 6) | ((r > 120) & (g < 70) & (b < 80))
+            garland = ndimage.binary_dilation(ndimage.binary_opening(garland, iterations=2), iterations=2)
+            mask = ~garland
+            # шукаємо поруч ділянку тих самих розмірів, де лише стіна
+            h, w = y1 - y0, x1 - x0
+            best = None
+            for dy in range(-140, 141, 10):
+                for dx in range(-300, 301, 6):
+                    sy0, sx0 = y0 + dy, x0 + dx
+                    if sy0 < 0 or sx0 < 0 or sy0 + h > H or sx0 + w > W or (abs(dx) < w + 10 and abs(dy) < h):
+                        continue
+                    score = wall_like(a[sy0:sy0 + h, sx0:sx0 + w, :3]).mean() - abs(dx) / 6000 - abs(dy) / 3000
+                    if best is None or score > best[0]:
+                        best = (score, sy0, sx0)
+            _, sy0, sx0 = best
+            src = a[sy0:sy0 + h, sx0:sx0 + w, :3].astype(np.float32)
+            # м'які краї, щоб не було видно латки
+            soft = ndimage.gaussian_filter(mask.astype(np.float32), 2.0)
+            f = 5
+            ramp = np.minimum(np.arange(h)[:, None], np.arange(h)[::-1][:, None]).clip(0, f) / f
+            ramp = np.minimum(ramp, (np.minimum(np.arange(w), np.arange(w)[::-1]).clip(0, f) / f)[None, :])
+            alpha = (soft * np.maximum(ramp, 0.0))[..., None]
+            dst = a[y0:y1, x0:x1, :3].astype(np.float32)
+            a[y0:y1, x0:x1, :3] = (src * alpha + dst * (1 - alpha)).astype(np.uint8)
+    return a
 
 
 def add_floor(a):
@@ -134,6 +194,7 @@ def darken(a, box, pad=6):
 def main():
     src = sys.argv[1] if len(sys.argv) > 1 else 'img.png'
     a = np.array(Image.open(src).convert('RGBA'))
+    a = remove_shutters(a)
     a = add_floor(a)
     a = a[:, CROP_X[0]:CROP_X[1]].copy()
     a[..., 3] = 255
