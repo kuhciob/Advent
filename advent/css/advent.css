@@ -135,7 +135,7 @@ html.is-modal-open body { overflow: hidden; }
 /* Небо сторінки — того ж сливового кольору, що й на малюнку */
 body.advent-page {
   /* небо з ілюстрації (безшовна текстура), у тому ж масштабі, що й будинок */
-  background: #361d1e url("../img/sky.webp?v=2026112802") repeat 50% 0 / min(61.1vw, 428px);
+  background: #361d1e url("../img/sky.webp?v=2026112803") repeat 50% 0 / min(61.1vw, 428px);
 }
 .advent-page .aurora { display: none; }
 
@@ -199,7 +199,7 @@ body.advent-page {
 /* Світло у вікні — шматок «світлої» версії малюнка точно по склу */
 .win-light {
   position: absolute;
-  background-image: url("../img/house-lit.webp?v=2026112802");
+  background-image: url("../img/house-lit.webp?v=2026112803");
   background-repeat: no-repeat;
   opacity: 0;
   transition: opacity 0.9s ease, filter 0.6s;
@@ -207,12 +207,67 @@ body.advent-page {
 }
 .win.is-ready .win-light,
 .win.is-opened .win-light { opacity: 1; }
-.win.is-ready .win-light { box-shadow: 0 0 18px 4px rgba(255, 196, 110, 0.45); border-radius: 30%; }
+.win.is-ready .win-light { box-shadow: 0 0 16px 3px rgba(255, 196, 110, 0.35); border-radius: 30%; }
 .win.is-new .win-light { animation: win-glow 2.4s ease-in-out infinite; }
 
 @keyframes win-glow {
   0%, 100% { filter: brightness(1); box-shadow: 0 0 14px 3px rgba(255, 196, 110, 0.4); }
   50%      { filter: brightness(1.22); box-shadow: 0 0 30px 8px rgba(255, 214, 140, 0.8); }
+}
+
+/* Віконниці: зачинені → прочинені (комірка доступна) → розчинені (переглянута) */
+.win-shutters {
+  position: absolute;
+  perspective: 90px;
+  -webkit-mask-image: url("../img/glass-mask.webp?v=2026112803");
+  mask-image: url("../img/glass-mask.webp?v=2026112803");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  pointer-events: none;
+}
+.leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.32), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.32)),
+    repeating-linear-gradient(180deg, rgba(14, 24, 18, 0.55) 0 1.5px, rgba(255, 255, 255, 0.08) 1.5px 2.5px, transparent 2.5px 5px),
+    linear-gradient(180deg, #4b6552, #34483a);
+  box-shadow: inset 0 0 0 1.5px #1f2c23;
+  transition: transform 1s cubic-bezier(0.2, 0.75, 0.25, 1), filter 1s;
+  backface-visibility: hidden;
+}
+.leaf--l { left: 0; transform-origin: 0 50%; }
+.leaf--r { right: 0; transform-origin: 100% 50%; }
+/* золота ручка */
+.leaf::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gold-bright);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+}
+.leaf--l::after { right: 3px; }
+.leaf--r::after { left: 3px; }
+
+.win.is-ready .leaf--l { transform: rotateY(52deg); }
+.win.is-ready .leaf--r { transform: rotateY(-52deg); }
+.win.is-new .leaf--l { animation: ajar-l 2.6s ease-in-out infinite; }
+.win.is-new .leaf--r { animation: ajar-r 2.6s ease-in-out infinite; }
+@keyframes ajar-l { 0%, 100% { transform: rotateY(44deg); } 50% { transform: rotateY(60deg); } }
+@keyframes ajar-r { 0%, 100% { transform: rotateY(-44deg); } 50% { transform: rotateY(-60deg); } }
+
+.win.is-opened .leaf { filter: brightness(0.8); }
+.win.is-opened .leaf--l { transform: rotateY(84deg); }
+.win.is-opened .leaf--r { transform: rotateY(-84deg); }
+
+@media (hover: hover) {
+  .win.is-ready:hover .leaf--l { animation: none; transform: rotateY(64deg); }
+  .win.is-ready:hover .leaf--r { animation: none; transform: rotateY(-64deg); }
 }
 
 /* Номер над вікном */
@@ -252,7 +307,7 @@ body.advent-page {
   overflow: hidden;
   pointer-events: none;
 }
-.win.is-opened .win-badge { display: flex; animation: badge-in 0.5s var(--ease-spring) both; }
+.win.is-opened .win-badge { display: flex; animation: badge-in 0.5s var(--ease-spring) 0.8s both; }
 .win-badge img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
 @keyframes badge-in { from { opacity: 0; transform: translateX(-50%) scale(0.4) rotate(-30deg); } }
 
@@ -598,6 +653,8 @@ body.advent-page {
 
 @media (prefers-reduced-motion: reduce) {
   .win.is-new .win-light { filter: brightness(1.15); box-shadow: 0 0 26px 6px rgba(255, 214, 140, 0.75); }
+  .win.is-new .leaf--l { animation: none; transform: rotateY(54deg); }
+  .win.is-new .leaf--r { animation: none; transform: rotateY(-54deg); }
   .door-tag { animation: none; }
   .spoiler:not(.is-revealed) { animation: none; }
 }

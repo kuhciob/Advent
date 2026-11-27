@@ -207,6 +207,20 @@
       light.style.backgroundPosition = (gx / (100 - gw) * 100) + '% ' + (gy / (100 - gh) * 100) + '%';
       b.appendChild(light);
 
+      // Віконниці: обрізані маскою точно по формі скла (арка, коло…)
+      var shut = document.createElement('span');
+      shut.className = 'win-shutters';
+      shut.style.left = light.style.left;
+      shut.style.top = light.style.top;
+      shut.style.width = light.style.width;
+      shut.style.height = light.style.height;
+      shut.style.setProperty('-webkit-mask-size', light.style.backgroundSize);
+      shut.style.setProperty('mask-size', light.style.backgroundSize);
+      shut.style.setProperty('-webkit-mask-position', light.style.backgroundPosition);
+      shut.style.setProperty('mask-position', light.style.backgroundPosition);
+      shut.innerHTML = '<span class="leaf leaf--l"></span><span class="leaf leaf--r"></span>';
+      b.appendChild(shut);
+
       var num = document.createElement('span');
       num.className = 'win-num';
       num.textContent = pad(day);
@@ -458,7 +472,8 @@
     }
     paintWindow(day);
     updateProgress();
-    window.setTimeout(function () { openModal(day, b); }, first && !reduceMotion ? 520 : 0);
+    // спершу віконниці розчиняються, потім — картка комірки
+    window.setTimeout(function () { openModal(day, b); }, first && !reduceMotion ? 1000 : 0);
   }
 
   var HEAD_RE = /^🎁\s*(?:\*\*)?\s*комірка\s*\d+\s*(?:\*\*)?\s*(?:[—–-]\s*(.+))?$/i;

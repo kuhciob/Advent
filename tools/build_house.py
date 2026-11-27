@@ -10,6 +10,7 @@
        advent/img/house-dark.webp — скло комірок «нічне» (комірка ще зачинена)
        advent/img/house-lit.webp  — усі вікна світяться (як в оригіналі)
        advent/img/sky.webp        — безшовна текстура зоряного неба для фону сторінки
+       advent/img/glass-mask.webp — форма скла комірок (по ній обрізаються віконниці)
   4. Друкує координати вікон (у відсотках) для advent/js/advent.js → WINDOWS.
 Вихідний PNG у репозиторій не комітимо (≈10 МБ).
 """
@@ -19,8 +20,9 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 from scipy import ndimage
+from scipy.spatial import ConvexHull
 
 OUT_W = 1300              # ширина готової картинки, px
 BAND = (1125, 1455)       # поверх, який дублюємо (y від–до в оригіналі)
@@ -83,7 +85,7 @@ def detect_glass(a):
                     break
             if merged:
                 break
-    return boxes
+    return boxes, m
 
 
 def classify(boxes):
@@ -136,7 +138,7 @@ def main():
     a = a[:, CROP_X[0]:CROP_X[1]].copy()
     a[..., 3] = 255
 
-    boxes = detect_glass(a)
+    boxes, glass = detect_glass(a)
     cells, decor, rows = classify(boxes)
     print('рядів фасаду:', [len(r) for r in rows], '| комірок:', len(cells), '| декор:', len(decor))
     if len(cells) != 24:
@@ -165,6 +167,21 @@ def main():
     sky = sky.resize((round(t * 2 * scale), round(t * 2 * scale)), Image.LANCZOS)
     sky.save(out / 'sky.webp', quality=78, method=6)
 
+    # маска скла комірок: по ній обрізаються віконниці (арки, круглі вікна тощо)
+    # (опукла оболонка — рівні арки й кола, без «дірок» від штор і ялинок у склі)
+    hull_img = Image.new('L', (W, H), 0)
+    draw = ImageDraw.Draw(hull_img)
+    for x0, y0, x1, y1 in regions:
+        ys, xs = np.nonzero(glass[y0:y1, x0:x1])
+        pts = np.column_stack([xs + x0, ys + y0])
+        hull = ConvexHull(pts)
+        draw.polygon([tuple(map(float, pts[v])) for v in hull.vertices], fill=255)
+    sh = ndimage.binary_dilation(np.array(hull_img) > 0, iterations=3)
+    alpha = Image.fromarray((sh * 255).astype(np.uint8)).resize(size, Image.LANCZOS)
+    mask = Image.new('RGBA', size, (255, 255, 255, 0))
+    mask.putalpha(alpha)
+    mask.save(out / 'glass-mask.webp', lossless=True, method=6)
+
     # двері: під вікном-віялом над ними (найширший «дрібний» блок на першому поверсі)
     fan = max((b for b in decor if b[1] > H * 0.7), key=lambda b: b[2] - b[0])
     door = [fan[0] - 10, fan[1] - 10, fan[2] + 10, min(H, fan[3] + int((fan[2] - fan[0]) * 1.75))]
@@ -176,7 +193,7 @@ def main():
     data = {'ratio': round(W / H, 4), 'windows': [pct(b) for b in regions], 'door': pct(door)}
     print(json.dumps(data))
     print('size', size, 'sky', sky.size)
-    for f in ('house-lit.webp', 'house-dark.webp', 'sky.webp'):
+    for f in ('house-lit.webp', 'house-dark.webp', 'sky.webp', 'glass-mask.webp'):
         print(f, (out / f).stat().st_size // 1024, 'KB')
 
 
