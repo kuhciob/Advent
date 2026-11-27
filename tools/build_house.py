@@ -9,6 +9,7 @@
   3. Знаходить скло вікон і робить дві версії:
        advent/img/house-dark.webp — скло комірок «нічне» (комірка ще зачинена)
        advent/img/house-lit.webp  — усі вікна світяться (як в оригіналі)
+       advent/img/sky.webp        — безшовна текстура зоряного неба для фону сторінки
   4. Друкує координати вікон (у відсотках) для advent/js/advent.js → WINDOWS.
 Вихідний PNG у репозиторій не комітимо (≈10 МБ).
 """
@@ -21,10 +22,10 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-OUT_W = 1100              # ширина готової картинки, px
+OUT_W = 1300              # ширина готової картинки, px
 BAND = (1125, 1455)       # поверх, який дублюємо (y від–до в оригіналі)
 MIRROR_AXIS = 1097        # вісь симетрії фасаду в оригіналі, px
-CROP_X = (330, 1840)      # що лишаємо по ширині (після вставки поверху)
+CROP_X = (4, 2163)        # уся ширина (ялинки цілі), без крайніх пікселів із прозорістю
 EDGE_KEEP = (515, 1660)   # смужки біля стін фасаду беремо з оригіналу (x до/після)
 
 
@@ -103,7 +104,7 @@ def classify(boxes):
     facade = [b for r in rows if len(r) == 4 for b in r]
     ground = [b for r in rows if len(r) == 2 for b in r]
     roof = sorted(roof, key=lambda b: b[0])
-    cells = facade + ground + [roof[0], roof[-1]]
+    cells = [roof[0], roof[-1]] + facade + ground   # нумерація з даху
     decor = [roof[1]] if len(roof) == 3 else []
     decor += small
     return cells, decor, rows
@@ -153,6 +154,17 @@ def main():
     Image.fromarray(lit[..., :3]).resize(size, Image.LANCZOS).save(out / 'house-lit.webp', quality=80, method=6)
     Image.fromarray(dark[..., :3]).resize(size, Image.LANCZOS).save(out / 'house-dark.webp', quality=80, method=6)
 
+    # фон сторінки: шматок неба над дахом, віддзеркалений 2×2 — шви не видно
+    tile = Image.fromarray(lit[20:440, 20:440, :3])
+    t = tile.size[0]
+    sky = Image.new('RGB', (t * 2, t * 2))
+    sky.paste(tile, (0, 0))
+    sky.paste(tile.transpose(Image.FLIP_LEFT_RIGHT), (t, 0))
+    sky.paste(tile.transpose(Image.FLIP_TOP_BOTTOM), (0, t))
+    sky.paste(tile.transpose(Image.ROTATE_180), (t, t))
+    sky = sky.resize((round(t * 2 * scale), round(t * 2 * scale)), Image.LANCZOS)
+    sky.save(out / 'sky.webp', quality=78, method=6)
+
     # двері: під вікном-віялом над ними (найширший «дрібний» блок на першому поверсі)
     fan = max((b for b in decor if b[1] > H * 0.7), key=lambda b: b[2] - b[0])
     door = [fan[0] - 10, fan[1] - 10, fan[2] + 10, min(H, fan[3] + int((fan[2] - fan[0]) * 1.75))]
@@ -163,7 +175,8 @@ def main():
 
     data = {'ratio': round(W / H, 4), 'windows': [pct(b) for b in regions], 'door': pct(door)}
     print(json.dumps(data))
-    for f in ('house-lit.webp', 'house-dark.webp'):
+    print('size', size, 'sky', sky.size)
+    for f in ('house-lit.webp', 'house-dark.webp', 'sky.webp'):
         print(f, (out / f).stat().st_size // 1024, 'KB')
 
 

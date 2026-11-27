@@ -26,7 +26,7 @@ html.is-modal-open body { overflow: hidden; }
   max-width: 560px;
   margin: 0 auto;
   padding: max(18px, env(safe-area-inset-top)) 16px 12px;
-  overflow-x: clip;
+  overflow-x: visible; /* будинок на всю ширину обрізає сам .house */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -36,6 +36,8 @@ html.is-modal-open body { overflow: hidden; }
 /* ---------- Шапка ---------- */
 
 .adv-head {
+  position: relative;
+  z-index: 2; /* поверх неба з малюнка, на яке заходить будинок */
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -132,27 +134,31 @@ html.is-modal-open body { overflow: hidden; }
 
 /* Небо сторінки — того ж сливового кольору, що й на малюнку */
 body.advent-page {
-  background-color: #361d1e;  /* = небо на малюнку будинку (54, 29, 30) */
-  background-image: none;
-  background-attachment: fixed;
+  /* небо з ілюстрації (безшовна текстура), у тому ж масштабі, що й будинок */
+  background: #361d1e url("../img/sky.webp?v=2026112802") repeat 50% 0 / min(61.1vw, 428px);
 }
 .advent-page .aurora { display: none; }
 
 .house {
   position: relative;
-  width: calc(100% + 32px);
-  max-width: 640px;
-  margin: 14px -16px 0;
+  z-index: 1;
+  width: 100vw;
+  /* угорі малюнка — порожнє небо; підтягуємо будинок ближче до заголовка */
+  margin: calc(min(157vw, 1100px) * -0.08) calc(50% - 50vw) 0;
+  overflow: hidden;
 }
 
 .house-art {
   position: relative;
-  aspect-ratio: 1100 / 2274;
+  left: 50%;
+  width: min(157vw, 1100px);   /* на телефоні будинок на всю ширину, ялинки визирають з країв */
+  transform: translateX(-50%);
+  aspect-ratio: 1300 / 1879;
   /* м'які краї, щоб малюнок розчинявся в небі сторінки */
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%),
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 3%, #000 97%, transparent 100%),
     linear-gradient(180deg, transparent 0, #000 4%, #000 97%, transparent 100%);
   -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%),
+  mask-image: linear-gradient(90deg, transparent 0, #000 3%, #000 97%, transparent 100%),
     linear-gradient(180deg, transparent 0, #000 4%, #000 97%, transparent 100%);
   mask-composite: intersect;
 }
@@ -193,7 +199,7 @@ body.advent-page {
 /* Світло у вікні — шматок «світлої» версії малюнка точно по склу */
 .win-light {
   position: absolute;
-  background-image: url("../img/house-lit.webp?v=2026112801");
+  background-image: url("../img/house-lit.webp?v=2026112802");
   background-repeat: no-repeat;
   opacity: 0;
   transition: opacity 0.9s ease, filter 0.6s;
