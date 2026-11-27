@@ -58,13 +58,12 @@ html.is-modal-open body { overflow: hidden; }
 @media (hover: hover) { .adv-back:hover { background: rgba(255, 255, 255, 0.12); } }
 @media (max-width: 359px) { .adv-back span { display: none; } }
 
-.adv-kicker {
-  margin: 18px 0 10px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold-bright);
+.adv-logo {
+  display: block;
+  width: clamp(200px, 64vw, 300px);
+  height: auto;
+  margin: 18px 0 16px;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
 }
 
 .adv-title { margin: 0; line-height: 1; }
@@ -129,122 +128,56 @@ html.is-modal-open body { overflow: hidden; }
   color: var(--text-faint);
 }
 
-/* ---------- Будинок ---------- */
+/* ---------- Будинок (ілюстрація) ---------- */
+
+/* Небо сторінки — того ж сливового кольору, що й на малюнку */
+body.advent-page {
+  background-color: #361d1e;  /* = небо на малюнку будинку (54, 29, 30) */
+  background-image: none;
+  background-attachment: fixed;
+}
+.advent-page .aurora { display: none; }
 
 .house {
   position: relative;
-  width: 100%;
-  margin-top: 26px;
+  width: calc(100% + 32px);
+  max-width: 640px;
+  margin: 14px -16px 0;
 }
 
-.roof {
+.house-art {
   position: relative;
-  height: clamp(112px, 32vw, 168px);
-  margin: 0 -6px;
+  aspect-ratio: 1100 / 2274;
+  /* м'які краї, щоб малюнок розчинявся в небі сторінки */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%),
+    linear-gradient(180deg, transparent 0, #000 4%, #000 97%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%),
+    linear-gradient(180deg, transparent 0, #000 4%, #000 97%, transparent 100%);
+  mask-composite: intersect;
 }
 
-.roof-tiles {
-  position: absolute;
-  inset: 0 0 6px;
-  clip-path: polygon(5% 100%, 17% 14%, 83% 14%, 95% 100%);
-  background:
-    radial-gradient(circle at 50% 0, transparent 9px, rgba(20, 4, 14, 0.35) 10px, transparent 12px) 0 0 / 22px 14px,
-    radial-gradient(circle at 50% 0, transparent 9px, rgba(20, 4, 14, 0.35) 10px, transparent 12px) 11px 7px / 22px 14px,
-    linear-gradient(180deg, #3d1129 0%, var(--burgundy) 60%, #5a1d3c 100%);
-}
-
-.chimney {
-  position: absolute;
-  top: 0;
-  right: 22%;
-  width: 28px;
-  height: 40px;
-  background: var(--facade-dark);
-  box-shadow: inset -6px 0 0 rgba(0, 0, 0, 0.18);
-}
-.chimney::before {
-  content: "";
-  position: absolute;
-  left: -4px; right: -4px; top: -6px;
-  height: 10px;
-  border-radius: 6px 6px 3px 3px;
-  background: #fbf7f0;
-}
-
-.attic {
-  position: absolute;
-  left: 50%;
-  bottom: 18px;
-  width: clamp(70px, 21vw, 100px);
-  aspect-ratio: 1;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  padding: 6px;
-  background: var(--frame);
-  box-shadow: 0 0 0 3px var(--wood), 0 0 30px rgba(241, 220, 174, 0.35);
-}
-.attic img {
+.house-img {
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 40%, #0d4a96, var(--navy) 70%);
+  user-select: none;
+  -webkit-user-drag: none;
 }
-
-.roof-snow {
-  position: absolute;
-  left: 0; right: 0; bottom: -4px;
-  height: 20px;
-  border-radius: 14px;
-  background:
-    radial-gradient(10px 9px at 12% 100%, #fbf7f0 98%, transparent) ,
-    radial-gradient(8px 10px at 41% 100%, #fbf7f0 98%, transparent),
-    radial-gradient(9px 8px at 77% 100%, #fbf7f0 98%, transparent),
-    linear-gradient(180deg, #ffffff 0%, #ece4d8 100%);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-  z-index: 2;
-}
-
-.facade {
-  position: relative;
-  padding: 26px clamp(10px, 3.5vw, 22px) 0;
-  background-color: var(--facade);
-  background-image: var(--paper-noise), var(--bricks),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.16), transparent 8%, transparent 92%, rgba(0, 0, 0, 0.2));
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
-}
-
-/* сніг біля підніжжя */
-.facade::after {
-  content: "";
-  position: absolute;
-  left: -16px; right: -16px; bottom: -14px;
-  height: 30px;
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-  background: linear-gradient(180deg, #ffffff, #dfe6f2);
-  box-shadow: 0 -2px 10px rgba(255, 255, 255, 0.25);
-}
-
-/* ---------- Вікна ---------- */
 
 .windows {
-  list-style: none;
+  position: absolute;
+  inset: 0;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(16px, 4.5vw, 26px) clamp(8px, 3vw, 18px);
+  list-style: none;
 }
+.win-slot { display: contents; }
 
-.win-slot { display: flex; }
-
+/* Зона натискання навколо вікна (координати задає advent.js) */
 .win {
-  position: relative;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
+  position: absolute;
+  display: block;
   padding: 0;
   border: 0;
   background: none;
@@ -253,252 +186,107 @@ html.is-modal-open body { overflow: hidden; }
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  border-radius: 12px;
 }
-.win:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 4px; border-radius: 10px; }
+.win:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
 
-.win-num {
-  margin-bottom: 6px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(58, 18, 36, 0.55);
-  color: var(--cream);
-  font: 700 0.72rem/1.4 var(--font-slab);
-  letter-spacing: 0.04em;
-}
-
-.win-frame {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 3 / 4.2;
-  padding: 5px;
-  border-radius: 6px;
-  background: linear-gradient(160deg, #f7eedf, var(--frame) 50%, var(--frame-shade));
-  box-shadow: 0 3px 0 rgba(60, 20, 35, 0.35), inset 0 0 0 1px rgba(74, 44, 34, 0.25);
-  transition: box-shadow 0.4s;
-}
-
-.win-pane {
-  position: relative;
-  display: block;
-  height: 100%;
-  overflow: hidden;
-  border-radius: inherit;
-  perspective: 220px;
-  background: var(--wood);
-}
-
-/* Інтер'єр — видно, коли стулки відчинено */
-.win-inside {
+/* Світло у вікні — шматок «світлої» версії малюнка точно по склу */
+.win-light {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(90% 70% at 50% 45%, #fbead0 0%, #e7cc9c 70%, #caa56f 100%);
-  font-size: clamp(1.3rem, 6.6vw, 2rem);
-  line-height: 1;
+  background-image: url("../img/house-lit.webp?v=2026112801");
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.9s ease, filter 0.6s;
+  pointer-events: none;
 }
-.win-inside img {
-  width: 78%;
-  aspect-ratio: 1;
-  object-fit: contain;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(74, 44, 34, 0.3);
-}
-
-/* Стулки = скло з рамою */
-.win-leaf {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  background: var(--glass-night);
-  border: 2px solid var(--wood);
-  transition: transform 0.75s var(--ease-out), filter 0.5s;
-  backface-visibility: hidden;
-}
-.win-leaf--l { left: 0; transform-origin: left center; border-right-width: 1.5px; }
-.win-leaf--r { right: 0; transform-origin: right center; border-left-width: 1.5px; }
-/* горизонтальна перемичка + відблиск */
-.win-leaf::before {
-  content: "";
-  position: absolute;
-  left: 0; right: 0; top: 46%;
-  height: 2px;
-  background: var(--wood);
-}
-.win-leaf::after {
-  content: "";
-  position: absolute;
-  inset: 8% 22% 58% 18%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), transparent 60%);
-  transform: skewX(-12deg);
-}
-
-/* Зачинене вікно: темне, холодне */
-.win.is-locked .win-num { opacity: 0.75; }
-.win.is-locked .win-leaf { filter: saturate(0.8); }
-
-/* Можна відкрити: тепле світло */
-.win.is-ready .win-leaf { background: var(--glass-warm); }
-.win.is-ready .win-leaf::after { background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), transparent 60%); }
-.win.is-ready .win-frame { box-shadow: 0 3px 0 rgba(60, 20, 35, 0.35), 0 0 22px rgba(255, 196, 110, 0.55); }
-.win.is-ready .win-num { background: var(--gold); color: var(--navy-ink); }
-.win.is-new .win-frame { animation: win-glow 2.4s ease-in-out infinite; }
+.win.is-ready .win-light,
+.win.is-opened .win-light { opacity: 1; }
+.win.is-ready .win-light { box-shadow: 0 0 18px 4px rgba(255, 196, 110, 0.45); border-radius: 30%; }
+.win.is-new .win-light { animation: win-glow 2.4s ease-in-out infinite; }
 
 @keyframes win-glow {
-  0%, 100% { box-shadow: 0 3px 0 rgba(60, 20, 35, 0.35), 0 0 16px rgba(255, 196, 110, 0.45); }
-  50%      { box-shadow: 0 3px 0 rgba(60, 20, 35, 0.35), 0 0 34px rgba(255, 214, 140, 0.95); }
+  0%, 100% { filter: brightness(1); box-shadow: 0 0 14px 3px rgba(255, 196, 110, 0.4); }
+  50%      { filter: brightness(1.22); box-shadow: 0 0 30px 8px rgba(255, 214, 140, 0.8); }
 }
 
-/* Відчинене */
-.win.is-opened .win-leaf { background: var(--glass-warm); filter: brightness(0.75); }
-.win.is-opened .win-leaf--l { transform: rotateY(76deg); }
-.win.is-opened .win-leaf--r { transform: rotateY(-76deg); }
-.win.is-opened .win-num { background: rgba(214, 186, 139, 0.35); }
+/* Номер над вікном */
+.win-num {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -30%);
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(46, 18, 26, 0.72);
+  color: var(--cream);
+  font: 700 clamp(0.6rem, 2.6vw, 0.78rem)/1.35 var(--font-slab);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.win.is-ready .win-num { background: var(--gold); color: var(--navy-ink); }
+.win.is-opened .win-num { background: rgba(214, 186, 139, 0.55); color: var(--navy-ink); }
+
+/* Наліпка у відчиненому вікні: лого партнера або іконка */
+.win-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  width: clamp(26px, 8.4vw, 50px);
+  aspect-ratio: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-50%) rotate(-6deg);
+  border-radius: 50%;
+  background: var(--cream);
+  box-shadow: 0 0 0 2px var(--gold), 0 4px 10px rgba(0, 0, 0, 0.45);
+  font-size: clamp(0.85rem, 4vw, 1.4rem);
+  line-height: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.win.is-opened .win-badge { display: flex; animation: badge-in 0.5s var(--ease-spring) both; }
+.win-badge img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+@keyframes badge-in { from { opacity: 0; transform: translateX(-50%) scale(0.4) rotate(-30deg); } }
 
 @media (hover: hover) {
-  .win.is-ready:hover .win-leaf--l { transform: rotateY(14deg); }
-  .win.is-ready:hover .win-leaf--r { transform: rotateY(-14deg); }
-  .win.is-opened:hover .win-frame { box-shadow: 0 3px 0 rgba(60, 20, 35, 0.35), 0 0 18px rgba(255, 196, 110, 0.4); }
+  .win.is-ready:hover .win-light { filter: brightness(1.18); }
+  .win.is-locked:hover .win-num { background: rgba(46, 18, 26, 0.9); }
 }
 
-.win.is-shake .win-frame { animation: win-shake 0.4s ease; }
+.win.is-shake { animation: win-shake 0.4s ease; }
 @keyframes win-shake {
-  20% { transform: translateX(-3px) rotate(-1deg); }
-  40% { transform: translateX(3px) rotate(1deg); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
   60% { transform: translateX(-2px); }
   80% { transform: translateX(2px); }
 }
 
-/* Форми вікон */
-.win--arch .win-frame { border-radius: 999px 999px 6px 6px; }
-.win--twin .win-frame { border-radius: 50% 50% 6px 6px / 16% 16% 6px 6px; }
-.win--round .win-frame { width: 84%; aspect-ratio: 1; border-radius: 50%; margin-bottom: 12%; }
-.win--round .win-leaf::before { top: 50%; }
-
-/* Віконниці */
-.win.has-shutters .win-frame { width: 64%; }
-.win.has-shutters .win-frame::before,
-.win.has-shutters .win-frame::after {
-  content: "";
-  position: absolute;
-  top: 2px; bottom: 2px;
-  width: 27%;
-  border-radius: 3px;
-  background:
-    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0 2px, transparent 2px 6px),
-    var(--shutter);
-  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.3);
-}
-.win.has-shutters .win-frame::before { right: 102%; }
-.win.has-shutters .win-frame::after  { left: 102%; }
-
-/* Підвіконня зі снігом */
-.win-sill {
-  position: relative;
-  width: 112%;
-  height: 7px;
-  margin-top: -1px;
-  border-radius: 2px;
-  background: var(--frame-shade);
-  box-shadow: 0 3px 4px rgba(40, 10, 25, 0.35);
-}
-.win-sill::before {
-  content: "";
-  position: absolute;
-  left: 4%; right: 6%; top: -4px;
-  height: 6px;
-  border-radius: 6px 6px 2px 2px;
-  background: #fbf7f0;
-}
-
-/* Балкон */
-.win.has-balcony .win-sill {
-  height: 15px;
-  background:
-    linear-gradient(var(--wood), var(--wood)) 0 0 / 100% 2px no-repeat,
-    linear-gradient(var(--wood), var(--wood)) 0 100% / 100% 2px no-repeat,
-    repeating-linear-gradient(90deg, var(--wood) 0 2px, transparent 2px 7px);
-  box-shadow: none;
-}
-
-/* ---------- Перший поверх: двері до передбачень ---------- */
-
-.ground {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: clamp(14px, 6vw, 40px);
-  margin-top: clamp(24px, 6vw, 34px);
-}
-
-.lamp {
-  position: relative;
-  width: 14px;
-  height: 22px;
-  margin-bottom: 70px;
-  border-radius: 4px 4px 7px 7px;
-  background: radial-gradient(circle at 50% 60%, #fff1c4, #f3c26b 60%, #b8792e);
-  box-shadow: 0 0 22px 6px rgba(255, 210, 130, 0.45), inset 0 0 0 2px var(--wood);
-}
-.lamp::before {
-  content: "";
-  position: absolute;
-  left: 50%; top: -8px;
-  width: 2px; height: 8px;
-  background: var(--wood);
-}
-
+/* Двері — до передбачень */
 .door {
-  position: relative;
-  width: clamp(104px, 32%, 150px);
-  aspect-ratio: 3 / 4;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 14px 10px 10px;
-  border-radius: 999px 999px 0 0;
-  background:
-    linear-gradient(90deg, transparent 49%, rgba(0, 0, 0, 0.35) 49% 51%, transparent 51%),
-    linear-gradient(180deg, #5a3426, #3b2219);
-  box-shadow: 0 0 0 6px var(--frame), 0 0 0 8px var(--frame-shade), 0 0 40px rgba(241, 220, 174, 0.25);
+  position: absolute;
+  display: block;
+  border-radius: 40% 40% 6px 6px;
   text-decoration: none;
-  color: var(--navy-ink);
-  transition: transform 0.2s var(--ease-out), box-shadow 0.2s;
 }
-.door-sign {
-  padding: 6px 8px;
-  border-radius: 6px;
+.door-tag {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  border-radius: 999px;
   background: var(--cream);
-  box-shadow: 0 0 0 1.5px var(--gold), 0 4px 10px rgba(0, 0, 0, 0.35);
-  font: 800 clamp(0.66rem, 2.6vw, 0.78rem)/1.15 var(--font-slab);
-  text-align: center;
+  box-shadow: 0 0 0 1.5px var(--gold), 0 6px 14px rgba(0, 0, 0, 0.45);
+  color: var(--navy-ink);
+  font: 800 clamp(0.62rem, 2.6vw, 0.8rem)/1.2 var(--font-slab);
+  white-space: nowrap;
+  animation: door-bob 3.2s ease-in-out infinite;
 }
-.door-hint {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--gold-bright);
-}
-.door:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 10px; }
-@media (hover: hover) {
-  .door:hover { transform: translateY(-2px); box-shadow: 0 0 0 6px var(--frame), 0 0 0 8px var(--frame-shade), 0 0 50px rgba(241, 220, 174, 0.5); }
-}
-
-/* ---------- Колажні прикраси ---------- */
-
-.deco { position: absolute; pointer-events: none; }
-.deco-gift-red { left: 9%; bottom: 10px; width: clamp(40px, 11vw, 58px); transform: rotate(-12deg); filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)); z-index: 3; }
-.deco-gift-green { right: -6px; bottom: -6px; width: clamp(48px, 13vw, 70px); transform: rotate(10deg); filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.45)); z-index: 3; }
-.deco-star { color: var(--gold-bright); text-shadow: 0 0 12px rgba(241, 220, 174, 0.8); animation: star-twinkle 4s ease-in-out infinite; }
-.deco-star-1 { left: -4px; top: 20px; font-size: 1.3rem; }
-.deco-star-2 { right: 4px; top: 54px; font-size: 0.9rem; animation-delay: -2s; }
-@keyframes star-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.8); } }
+@keyframes door-bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -4px); } }
+.door:focus-visible { outline: 3px solid var(--gold-bright); outline-offset: 4px; }
+@media (hover: hover) { .door:hover .door-tag { background: #fff; } }
 
 .adv-note {
   max-width: 40ch;
@@ -803,17 +591,9 @@ html.is-modal-open body { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .win.is-new .win-frame { box-shadow: 0 3px 0 rgba(60, 20, 35, 0.35), 0 0 30px rgba(255, 214, 140, 0.85); }
+  .win.is-new .win-light { filter: brightness(1.15); box-shadow: 0 0 26px 6px rgba(255, 214, 140, 0.75); }
+  .door-tag { animation: none; }
   .spoiler:not(.is-revealed) { animation: none; }
 }
 
 .has-preview .modal { padding-top: max(64px, calc(env(safe-area-inset-top) + 48px)); }
-
-/* Десктоп: ширший будинок, 6 вікон у ряд */
-@media (min-width: 900px) {
-  .adv { max-width: 860px; }
-  .adv-head { max-width: 560px; }
-  .windows { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 30px 26px; }
-  .roof { height: 190px; }
-  .facade { padding: 34px 34px 0; }
-}

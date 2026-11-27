@@ -130,6 +130,11 @@ python tools/check_predictions.py
 - `…/advent/?preview=КЛЮЧ&at=2026-12-05T10:00` — як сторінка виглядатиме 5 грудня о 10:00.
 - Локально без Таблиці: `start-local.cmd` → `http://127.0.0.1:8765/advent/?preview` (бере `private/advent.local.json`).
 - Посилання на конкретну комірку: `…/advent/#5` (відкриється, якщо комірка вже доступна).
+- Локально з даними з `private/advent.local.json` замість Таблиці: `http://127.0.0.1:8765/advent/?local&preview`.
+
+### Ілюстрація будинку
+
+`advent/img/house-dark.webp` (вікна зачинених комірок темні) і `house-lit.webp` (усі вікна світяться) збирає `python tools/build_house.py img.png`: додає дзеркальну копію одного поверху (щоб було 24 вікна), затемнює скло й друкує координати вікон — їх треба вставити в `advent/js/advent.js` → `WINDOWS`. Вихідний `img.png` у репозиторій не комітимо.
 
 ## Анімації та доступність
 

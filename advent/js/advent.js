@@ -22,12 +22,18 @@
     special: 'Сюрприз на початок грудня', raffle: 'Розіграш', promo: 'Подарунок від партнера',
     video: 'Запис для тебе', prompts: 'Добірка промптів', wallpaper: 'Святкові заставки', gift: 'Подарунок'
   };
-  // Форма вікон — трохи асиметрії, як у старому будинку
-  var SHAPES = ['arch', 'rect', 'arch', 'rect', 'round', 'arch', 'rect', 'arch',
-    'arch', 'rect', 'twin', 'rect', 'rect', 'arch', 'rect', 'arch',
-    'arch', 'round', 'rect', 'arch', 'rect', 'arch', 'twin', 'arch'];
-  var SHUTTERS = { 1: 1, 7: 1, 12: 1, 13: 1, 22: 1 };
-  var BALCONY = { 4: 1, 9: 1, 15: 1, 21: 1 };
+  // Скло вікон на ілюстрації (advent/img/house-*.webp), у % від картинки: [x, y, ширина, висота].
+  // Порядок = номери комірок: 5 поверхів фасаду (01–20), перший поверх (21–22), мансарда (23–24).
+  // Генерує tools/build_house.py — після зміни малюнка перезапусти його й встав сюди новий масив.
+  var WINDOWS = [
+    [18.28, 27.56, 8.01, 5.77], [37.22, 27.68, 8.54, 6.09], [56.42, 27.4, 7.81, 6.66], [74.97, 28.07, 8.68, 6.31],
+    [17.55, 38.99, 9.27, 4.26], [37.68, 38.03, 7.55, 6.54], [56.56, 38.9, 7.62, 5.58], [75.89, 38.39, 7.62, 5.64],
+    [18.15, 48.96, 7.62, 5.64], [37.48, 49.47, 7.62, 5.58], [56.42, 48.61, 7.55, 6.54], [74.83, 49.57, 9.27, 4.26],
+    [18.28, 59.02, 7.68, 6.57], [37.42, 60.04, 7.75, 5.45], [55.76, 60.01, 9.74, 5.86], [76.23, 60.04, 7.02, 6.09],
+    [18.41, 70.94, 7.48, 5.74], [37.68, 70.65, 7.48, 6.38], [56.36, 70.94, 8.08, 5.64], [75.89, 70.97, 7.42, 6.09],
+    [19.21, 83.56, 8.87, 6.7], [72.85, 83.56, 8.94, 6.66], [25.89, 18.2, 6.42, 4.17], [68.68, 18.23, 6.36, 3.84]
+  ];
+  var HIT_X = 0.45, HIT_Y = 0.38, HIT_W = 1.9, HIT_H = 1.62; // зона натискання навколо скла
 
   function $(id) { return document.getElementById(id); }
 
@@ -175,28 +181,41 @@
 
   function buildWindows() {
     for (var day = 1; day <= TOTAL; day++) {
+      var g = WINDOWS[day - 1];
+      var gx = g[0], gy = g[1], gw = g[2], gh = g[3];
+      var hx = gx - gw * HIT_X, hy = gy - gh * HIT_Y, hw = gw * HIT_W, hh = gh * HIT_H;
+
       var li = document.createElement('li');
       li.className = 'win-slot';
       var b = document.createElement('button');
       b.type = 'button';
-      b.className = 'win win--' + SHAPES[day - 1] + (SHUTTERS[day] ? ' has-shutters' : '') + (BALCONY[day] ? ' has-balcony' : '');
+      b.className = 'win';
       b.dataset.day = day;
-      b.style.setProperty('--i', day);
+      b.style.left = hx + '%';
+      b.style.top = hy + '%';
+      b.style.width = hw + '%';
+      b.style.height = hh + '%';
+
+      // «Світло» у вікні: шматок світлої версії малюнка точно по склу
+      var light = document.createElement('span');
+      light.className = 'win-light';
+      light.style.left = (gw * HIT_X / hw * 100) + '%';
+      light.style.top = (gh * HIT_Y / hh * 100) + '%';
+      light.style.width = (gw / hw * 100) + '%';
+      light.style.height = (gh / hh * 100) + '%';
+      light.style.backgroundSize = (100 / gw * 100) + '% ' + (100 / gh * 100) + '%';
+      light.style.backgroundPosition = (gx / (100 - gw) * 100) + '% ' + (gy / (100 - gh) * 100) + '%';
+      b.appendChild(light);
 
       var num = document.createElement('span');
       num.className = 'win-num';
       num.textContent = pad(day);
       b.appendChild(num);
 
-      var frame = document.createElement('span');
-      frame.className = 'win-frame';
-      frame.innerHTML = '<span class="win-pane"><span class="win-inside"></span>' +
-        '<span class="win-leaf win-leaf--l"></span><span class="win-leaf win-leaf--r"></span></span>';
-      b.appendChild(frame);
-
-      var sill = document.createElement('span');
-      sill.className = 'win-sill';
-      b.appendChild(sill);
+      var badge = document.createElement('span');
+      badge.className = 'win-badge';
+      badge.setAttribute('aria-hidden', 'true');
+      b.appendChild(badge);
 
       b.addEventListener('click', onWindowClick);
       li.appendChild(b);
@@ -223,12 +242,13 @@
     b.classList.toggle('is-opened', !!isOpened);
     b.classList.toggle('is-new', !!(isNew(c, t) && !opened[day]));
 
-    var inside = b.querySelector('.win-inside');
+    var inside = b.querySelector('.win-badge');
     inside.textContent = '';
+    inside.classList.toggle('has-logo', !!(c.open && c.logo));
     if (c.open) {
       if (c.logo) {
         var img = document.createElement('img');
-        img.src = c.logo; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+        img.src = (window.AdventText && window.AdventText.imageUrl(c.logo)) || c.logo; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
         img.onerror = function () { inside.textContent = ICONS[c.type] || ICONS.gift; };
         inside.appendChild(img);
       } else {
@@ -392,7 +412,8 @@
 
   function refresh() {
     var p;
-    if (ADVENT_API_URL) p = fromApi();
+    // На localhost із ?local — дані з private/advent.local.json замість Таблиці
+    if (ADVENT_API_URL && !(isLocalHost && 'local' in params)) p = fromApi();
     else if (isLocalHost) p = fromLocal();
     else p = Promise.reject(new Error('no source'));
 

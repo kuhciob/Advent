@@ -213,5 +213,5 @@
     });
   }
 
-  window.AdventText = { render: render };
+  window.AdventText = { render: render, imageUrl: imageUrl };
 })();

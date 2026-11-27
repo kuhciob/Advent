@@ -36,6 +36,8 @@ tools/wishes-backend.gs    Apps Script для стіни побажань
 tools/advent-backend.gs    Apps Script адвенту (віддає комірки лише після відкриття за Києвом)
 tools/advent_import.py     Notion-експорт → private/advent-content.csv (+ .local.json для тестів)
 advent/                    сторінка адвент-календаря (index.html, css/advent.css, js/advent.js, js/richtext.js)
+                           img/house-{dark,lit}.webp — ілюстрація будинку (збирає tools/build_house.py з img.png;
+                           координати вікон → WINDOWS у advent.js), img/logo-club.png — лого Project Me Club
 assets/                    logo.png (прозорий), favicon, og-image.png
 ```
 
